@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マーケティング検定3級 学習ツール</title>
+<style>
+  :root{
+    --ink:#111111;
+    --paper:#ffffff;
+    --line:#111111;
+    --muted:#6b6b6b;
+    --accent:#1c3a6b;
+    --correct:#1f6f43;
+    --wrong:#9b2c2c;
+    --card-bg:#fafafa;
+    --weekend-bg:#f3f1ea;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",-apple-system,BlinkMacSystemFont,sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:20px 16px 60px;
+  }
+  header{
+    border-bottom:2px solid var(--line);
+    padding-bottom:14px;
+    margin-bottom:16px;
+  }
+  header h1{
+    font-size:1.15rem;
+    font-weight:700;
+    margin:0 0 4px;
+  }
+  header p{
+    margin:0;
+    font-size:0.82rem;
+    color:var(--muted);
+  }
+
+  /* tab switcher */
+  .tabs{
+    display:flex;
+    gap:0;
+    margin-bottom:20px;
+    border:1.5px solid var(--line);
+  }
+  .tab-btn{
+    flex:1;
+    padding:11px 8px;
+    background:var(--paper);
+    color:var(--ink);
+    border:none;
+    border-right:1.5px solid var(--line);
+    font-size:0.9rem;
+    font-weight:700;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .tab-btn:last-child{border-right:none;}
+  .tab-btn.active{
+    background:var(--ink);
+    color:var(--paper);
+  }
+
+  .sync-bar{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+    margin-bottom:18px;
+    padding:8px 10px;
+    background:var(--card-bg);
+    border:1px dashed #999;
+    font-size:0.78rem;
+  }
+  .sync-label{
+    color:var(--muted);
+    margin-right:2px;
+  }
+  .sync-bar button{
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:6px 12px;
+    font-size:0.78rem;
+    font-weight:700;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .sync-status-ok{color:var(--correct);font-weight:700;}
+  .sync-status-err{color:var(--wrong);font-weight:700;}
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---- schedule view ---- */
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    gap:12px;
+    margin-bottom:18px;
+    padding:14px;
+    background:var(--card-bg);
+    border:1.5px solid var(--line);
+  }
+  .controls label{
+    font-size:0.8rem;
+    font-weight:700;
+    display:block;
+    margin-bottom:4px;
+  }
+  .controls input[type="date"]{
+    font-size:0.95rem;
+    padding:7px 8px;
+    border:1.5px solid #999;
+    font-family:inherit;
+  }
+  .controls button{
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:9px 18px;
+    font-size:0.88rem;
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  .usage-note{
+    font-size:0.8rem;
+    color:#333;
+    background:var(--card-bg);
+    border-left:3px solid var(--accent);
+    padding:10px 14px;
+    margin-bottom:22px;
+  }
+  .usage-note strong{color:var(--accent);}
+
+  .week-title{
+    font-size:0.95rem;
+    font-weight:700;
+    margin:26px 0 10px;
+    padding-bottom:4px;
+    border-bottom:1.5px solid var(--line);
+  }
+
+  table.plan{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:6px;
+  }
+  table.plan th, table.plan td{
+    border:1px solid #d8d8d8;
+    padding:8px 9px;
+    font-size:0.82rem;
+    text-align:left;
+    vertical-align:top;
+  }
+  table.plan th{
+    background:#111111;
+    color:#fff;
+    font-weight:700;
+    font-size:0.76rem;
+  }
+  table.plan tr.weekend td{
+    background:var(--weekend-bg);
+  }
+  table.plan td.col-date{white-space:nowrap;font-weight:700;}
+  table.plan td.col-time{white-space:nowrap;text-align:center;font-weight:700;}
+  table.plan td.col-check{text-align:center;width:34px;}
+  table.plan input[type="checkbox"]{width:18px;height:18px;}
+  table.plan td.col-action{width:96px;text-align:center;}
+  .skip-btn{
+    background:var(--paper);
+    color:var(--wrong);
+    border:1.3px solid var(--wrong);
+    padding:5px 8px;
+    font-size:0.72rem;
+    font-family:inherit;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .skip-btn:hover{background:#fbeaea;}
+
+  .excluded-panel{
+    background:var(--card-bg);
+    border:1px dashed #999;
+    padding:10px 14px;
+    font-size:0.8rem;
+    margin-bottom:18px;
+  }
+  .excluded-panel strong{display:block;margin-bottom:6px;color:var(--wrong);}
+  .excluded-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .excluded-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    padding:3px 8px;
+    font-size:0.76rem;
+  }
+  .excluded-chip button{
+    background:none;
+    border:none;
+    color:var(--wrong);
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+    padding:0;
+    font-size:0.85rem;
+  }
+
+  .week-goal{
+    background:var(--card-bg);
+    border:1.5px solid var(--accent);
+    padding:10px 14px;
+    font-size:0.84rem;
+    margin-bottom:10px;
+  }
+  .week-goal strong{color:var(--accent);display:inline-block;margin-bottom:2px;}
+
+  section.appendix{
+    margin-top:34px;
+    padding-top:16px;
+    border-top:2px solid var(--line);
+  }
+  section.appendix h2{
+    font-size:0.98rem;
+    margin:0 0 10px;
+  }
+  section.appendix h3{
+    font-size:0.88rem;
+    margin:18px 0 6px;
+    color:var(--accent);
+  }
+  section.appendix ul{
+    margin:0 0 4px;
+    padding-left:1.2em;
+    font-size:0.85rem;
+  }
+  section.appendix li{margin-bottom:4px;}
+
+  @media screen and (max-width:640px){
+    table.plan thead{display:none;}
+    table.plan, table.plan tbody, table.plan tr, table.plan td{display:block;width:100%;}
+    table.plan tr{
+      border:1.5px solid var(--line);
+      margin-bottom:10px;
+      padding:8px 10px;
+    }
+    table.plan td{
+      border:none;
+      padding:4px 0;
+    }
+    table.plan td.col-check{text-align:left;}
+    table.plan td::before{
+      content:attr(data-label);
+      display:block;
+      font-size:0.7rem;
+      font-weight:700;
+      color:var(--accent);
+      margin-bottom:2px;
+    }
+  }
+
+  @page{
+    size:A4 landscape;
+    margin:8mm;
+  }
+  @media print{
+    .tabs, .controls, .usage-note, section.appendix, header p{display:none;}
+    body{font-size:8pt;}
+    .wrap{max-width:100%;padding:0;}
+    header{margin-bottom:6px;padding-bottom:4px;}
+    header h1{font-size:11pt;}
+    .view{display:block !important;}
+    #view-quiz{display:none !important;}
+    #schedule-output{
+      display:flex;
+      gap:5mm;
+      align-items:flex-start;
+    }
+    .week-block{
+      flex:1;
+      min-width:0;
+    }
+    .week-title{
+      font-size:8.5pt;
+      margin:0 0 4px;
+      padding-bottom:2px;
+    }
+    table.plan{font-size:6.3pt;width:100%;}
+    table.plan th{font-size:6pt;padding:2px 3px;}
+    table.plan td{padding:2px 3px;line-height:1.25;}
+    table.plan td.col-date{white-space:normal;}
+    table.plan input[type="checkbox"]{width:9px;height:9px;}
+    table.plan .col-action{display:none !important;}
+    .excluded-panel{display:none;}
+    .week-goal{
+      font-size:6.2pt;
+      padding:3px 5px;
+      margin-bottom:0;
+      line-height:1.3;
+    }
+    .week-goal strong{display:block;margin-bottom:1px;}
+    tr.weekend td{background:#eee !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    table.plan tr{break-inside:avoid;}
+  }
+
+  /* ---- quiz view ---- */
+  .progress-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .progress-track{
+    flex:1;
+    height:4px;
+    background:#e5e5e5;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--accent);
+    transition:width .25s ease;
+  }
+  .progress-label{
+    font-size:0.78rem;
+    color:var(--muted);
+    white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+  }
+
+  .category-tag{
+    display:inline-block;
+    font-size:0.72rem;
+    color:var(--accent);
+    border:1px solid var(--accent);
+    padding:2px 8px;
+    margin-bottom:14px;
+  }
+
+  .question{
+    font-size:1.02rem;
+    font-weight:600;
+    margin:0 0 20px;
+  }
+
+  .choices{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom:20px;
+  }
+  .choice{
+    text-align:left;
+    background:var(--card-bg);
+    border:1.5px solid #d8d8d8;
+    color:var(--ink);
+    padding:12px 14px;
+    font-size:0.94rem;
+    border-radius:2px;
+    cursor:pointer;
+    font-family:inherit;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .choice:hover:not(:disabled){
+    border-color:var(--ink);
+  }
+  .choice:disabled{
+    cursor:default;
+  }
+  .choice.correct{
+    border-color:var(--correct);
+    background:#eaf3ee;
+    font-weight:700;
+  }
+  .choice.wrong{
+    border-color:var(--wrong);
+    background:#f7eaea;
+  }
+
+  .explanation{
+    display:none;
+    border-left:3px solid var(--accent);
+    padding:10px 14px;
+    background:var(--card-bg);
+    font-size:0.86rem;
+    color:#333;
+    margin-bottom:20px;
+  }
+  .explanation.show{
+    display:block;
+  }
+  .explanation strong{
+    display:block;
+    margin-bottom:4px;
+    color:var(--accent);
+  }
+
+  .next-btn{
+    display:block;
+    width:100%;
+    padding:13px;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    font-size:0.95rem;
+    font-weight:700;
+    cursor:pointer;
+    letter-spacing:0.02em;
+  }
+  .next-btn:disabled{
+    background:#cfcfcf;
+    cursor:default;
+  }
+
+  .result{
+    text-align:center;
+    padding:20px 0;
+  }
+  .result .score{
+    font-size:2.4rem;
+    font-weight:800;
+    margin:8px 0 2px;
+  }
+  .result .score-sub{
+    font-size:0.85rem;
+    color:var(--muted);
+    margin-bottom:20px;
+  }
+  .result-bar{
+    height:8px;
+    background:#e5e5e5;
+    margin-bottom:24px;
+    overflow:hidden;
+  }
+  .result-bar-fill{
+    height:100%;
+    background:var(--accent);
+  }
+  .verdict{
+    font-size:0.95rem;
+    font-weight:700;
+    margin-bottom:24px;
+    padding:12px;
+    border:1.5px solid var(--line);
+  }
+  .review-list{
+    text-align:left;
+    margin-bottom:24px;
+  }
+  .review-item{
+    border-top:1px solid #e0e0e0;
+    padding:12px 0;
+    font-size:0.85rem;
+  }
+  .review-item:last-child{border-bottom:1px solid #e0e0e0;}
+  .review-item .rq{font-weight:600;margin-bottom:4px;}
+  .review-item .ra-wrong{color:var(--wrong);}
+  .review-item .ra-correct{color:var(--correct);}
+  .restart-btn{
+    display:block;
+    width:100%;
+    padding:13px;
+    background:var(--paper);
+    color:var(--ink);
+    border:2px solid var(--ink);
+    font-size:0.95rem;
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  .menu-lead{
+    font-size:0.85rem;
+    color:var(--muted);
+    margin:0 0 18px;
+  }
+  .set-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .set-card{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    width:100%;
+    text-align:left;
+    background:var(--card-bg);
+    border:1.5px solid var(--line);
+    color:var(--ink);
+    padding:14px 16px;
+    font-size:0.92rem;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .set-card:hover{
+    background:#f0f0f0;
+  }
+  .set-range{
+    font-weight:700;
+  }
+  .set-score{
+    font-size:0.78rem;
+    color:var(--accent);
+    white-space:nowrap;
+    font-weight:700;
+  }
+  .set-score-new{
+    color:var(--muted);
+    font-weight:400;
+  }
+  .all-correct{
+    text-align:center;
+    font-size:0.88rem;
+    color:var(--correct);
+    font-weight:700;
+    margin-bottom:20px;
+  }
+
+  /* ---- glossary view ---- */
+  .gloss-searchbar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .gloss-searchbar input{
+    flex:1;
+    font-size:0.92rem;
+    padding:9px 10px;
+    border:1.5px solid var(--line);
+    font-family:inherit;
+  }
+  .gloss-count{
+    font-size:0.76rem;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .gloss-cat-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-bottom:14px;
+  }
+  .gloss-chip{
+    background:var(--paper);
+    color:var(--ink);
+    border:1.3px solid var(--line);
+    padding:5px 10px;
+    font-size:0.74rem;
+    font-family:inherit;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .gloss-chip.active{
+    background:var(--ink);
+    color:var(--paper);
+  }
+  .gloss-index{
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px;
+    margin-bottom:16px;
+    padding:8px;
+    background:var(--card-bg);
+    border:1px dashed #999;
+  }
+  .gloss-index-btn{
+    background:var(--paper);
+    color:var(--ink);
+    border:1px solid #999;
+    width:26px;
+    height:26px;
+    font-size:0.72rem;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .gloss-index-btn:disabled{
+    color:#ccc;
+    border-color:#ddd;
+    cursor:default;
+  }
+  .gloss-group{
+    margin-bottom:18px;
+  }
+  .gloss-group-label{
+    font-size:0.8rem;
+    font-weight:700;
+    color:var(--accent);
+    border-bottom:1.5px solid var(--line);
+    padding-bottom:4px;
+    margin-bottom:8px;
+  }
+  .gloss-card{
+    border:1.5px solid var(--line);
+    background:var(--card-bg);
+    padding:12px 14px;
+    margin-bottom:8px;
+  }
+  .gloss-term{
+    font-size:0.92rem;
+    font-weight:700;
+    margin-bottom:4px;
+  }
+  .gloss-cat-tag{
+    display:inline-block;
+    font-size:0.68rem;
+    font-weight:400;
+    color:var(--muted);
+    border:1px solid #ccc;
+    padding:1px 6px;
+    margin-left:6px;
+    vertical-align:middle;
+  }
+  .gloss-def{
+    font-size:0.84rem;
+    color:#333;
+  }
+  .gloss-empty{
+    font-size:0.85rem;
+    color:var(--muted);
+    text-align:center;
+    padding:30px 0;
+  }
+  mark.gloss-hit{
+    background:#fff2a8;
+    padding:0 1px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>マーケティング検定3級 学習ツール</h1>
+    <p>使用教材：マーケティング検定 3級試験 公式問題集&解説〈2026年-2027年度版〉</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-view="schedule">学習スケジュール</button>
+    <button class="tab-btn" data-view="quiz">一問一答クイズ</button>
+    <button class="tab-btn" data-view="review">復習リスト</button>
+    <button class="tab-btn" data-view="glossary">単語帳</button>
+  </div>
+
+  <div class="sync-bar">
+    <span class="sync-label">他のPCと進捗を共有する</span>
+    <button id="sync-copy-btn">進捗をコピー</button>
+    <button id="sync-paste-btn" style="background:var(--paper);color:var(--ink);border:1.5px solid var(--ink);">貼り付けて反映</button>
+    <span id="sync-status"></span>
+  </div>
+
+  <!-- ========== スケジュールビュー ========== -->
+  <div id="view-schedule" class="view active">
+    <div class="controls">
+      <div>
+        <label for="start-date">開始日</label>
+        <input type="date" id="start-date" value="2026-09-26">
+      </div>
+      <button id="generate-btn">この日付でスケジュールを生成</button>
+      <button id="reset-checks-btn" style="background:var(--paper);color:var(--ink);border:1.5px solid var(--ink);">チェックをリセット</button>
+    </div>
+
+    <div class="usage-note">
+      <strong>この表の使い方</strong>
+      各問題には解答時に「◎＝自信を持って正解／△＝正解したが自信なし／×＝不正解」を問題番号の横に記録する。ノートには△と×の内容だけを、1テーマにつき3行以内で簡潔に書く。まとめノートは作らない。毎日新しい範囲を進める必要はなく、遅れた週は復習日に充てて調整してよい。チェック欄はこのブラウザに保存される(このファイルを直接ブラウザで開いている場合のみ)。
+    </div>
+
+    <div id="weak-summary"></div>
+    <div id="excluded-panel"></div>
+
+    <div id="schedule-output"></div>
+
+    <section class="appendix">
+      <h2>予定が崩れたときの対応</h2>
+
+      <h3>予定より遅れた場合のリカバリールール</h3>
+      <ul>
+        <li>遅れが1〜2日分：次の休日(90分)の枠で、遅れた分の「軽い方の作業」だけを先に片付けてから、その日の本来の作業に入る。</li>
+        <li>遅れが3日以上：新しい範囲を止め、1週目なら「1周目を終わらせる」、2週目なら「×問題の解き直し」、3週目なら「弱点分野の復習」に該当する作業だけを優先し、それ以外は思い切って削る。</li>
+        <li>週末までに取り戻せなかった場合：その週の「達成目標」を1段階下げてよい(例：正答率70%目標→まず60%を目指す)。無理に帳尻を合わせず、次の週で調整する。</li>
+      </ul>
+
+      <h3>1日サボった場合の調整方法</h3>
+      <ul>
+        <li>翌日にその日の分を丸ごと足さない。翌日は「その日の本来の作業」＋「サボった日のクイズ10問だけ」を追加する程度にとどめる。</li>
+        <li>平日が続けてサボりになった場合は、直近の休日(90分)の前半30分を、抜けた分の穴埋めに使う。</li>
+        <li>1週間のうち1日抜けるくらいは想定の範囲。連続して抜けたときだけ上記のリカバリールールに切り替える。</li>
+      </ul>
+
+      <h3>試験直前3日間の勉強方法</h3>
+      <ul>
+        <li><strong>3日前：</strong>公式問題集を通しで解き直し、×だけを抽出する。新しい範囲には手を出さない。</li>
+        <li><strong>2日前：</strong>抽出した×問題と、ノートに残っている△×だけを解き直す。クイズタブの復習リストを全問解き直し、用語の抜けを最終確認する。</li>
+        <li><strong>前日：</strong>長時間の詰め込みはしない。ノートをざっと読み返す程度にとどめ、持ち物(受験票・本人確認書類)と試験会場・時間を確認して早めに休む。</li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- ========== クイズビュー ========== -->
+  <div id="view-quiz" class="view">
+    <p class="menu-lead" style="margin-top:0;">全90問。公式テキストの9テーマ×各10問で、スケジュール側のテーマ構成とぴったり揃えとる。難易度は3級(初級)相当。間違えた問題は自動的に「復習リスト」タブに集まる。</p>
+    <div id="menu-area"></div>
+    <div id="quiz-area" style="display:none;"></div>
+    <div id="result-area" style="display:none;"></div>
+  </div>
+
+  <!-- ========== 復習リストビュー ========== -->
+  <div id="view-review" class="view">
+    <div id="review-output"></div>
+  </div>
+
+  <!-- ========== 単語帳ビュー ========== -->
+  <div id="view-glossary" class="view">
+    <p class="menu-lead" style="margin-top:0;">クイズの選択肢に出てくる用語を中心に、3級範囲の重要語をまとめとる。正解の用語だけやなく、まぎらわしい他の選択肢もここで確認できる。</p>
+
+    <div class="gloss-searchbar">
+      <input type="text" id="gloss-search" placeholder="用語や説明文で検索(例: SWOT、価格弾力性)">
+      <span id="gloss-count" class="gloss-count"></span>
+    </div>
+
+    <div class="gloss-cat-chips" id="gloss-cat-chips"></div>
+
+    <div class="gloss-index" id="gloss-index"></div>
+
+    <div id="gloss-list"></div>
+  </div>
+</div>
+
+<script>
+/* ===================== タブ切り替え ===================== */
+function switchToView(name){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+  if(name === 'review') renderReviewView();
+  if(name === 'schedule') renderWeakSummaryInSchedule();
+  if(name === 'glossary') initGlossaryOnce();
+}
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchToView(btn.dataset.view));
+});
+
+/* ===================== 保存機能の自己診断 ===================== */
+function storageIsUsable(){
+  try{
+    const testKey = '__mk3_storage_test__';
+    localStorage.setItem(testKey, '1');
+    localStorage.removeItem(testKey);
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+function showStorageWarningIfNeeded(){
+  if(storageIsUsable()) return;
+  const wrap = document.querySelector('.wrap');
+  const banner = document.createElement('div');
+  banner.style.cssText = 'background:#fbeaea;border:1.5px solid #9b2c2c;color:#9b2c2c;padding:10px 14px;font-size:0.8rem;margin-bottom:16px;';
+  banner.textContent = 'このブラウザ(またはプライベートブラウズモード)では保存機能が使えへん状態や。通常モードのSafariで開き直してくれ。';
+  wrap.insertBefore(banner, wrap.firstChild.nextSibling);
+}
+showStorageWarningIfNeeded();
+
+/* ===================== スケジュール機能 ===================== */
+const WEEKDAY_LABEL = ["日","月","火","水","木","金","土"];
+const STORAGE_KEY = 'mk3-schedule-checks-v1';
+
+function loadChecks(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){
+    return {};
+  }
+}
+function saveChecks(checks){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(checks));
+  }catch(e){
+    // ブラウザのストレージが使えない環境(プレビュー等)では保存をスキップする。
+  }
+}
+let checksState = loadChecks();
+
+// 個別に除外した日付(出張・用事等)。この日はスケジュールから飛ばして後ろ倒しにする。
+const EXCLUDED_KEY = 'mk3-schedule-excluded-v1';
+function loadExcluded(){
+  try{
+    const raw = localStorage.getItem(EXCLUDED_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  }catch(e){
+    return new Set();
+  }
+}
+function saveExcluded(){
+  try{
+    localStorage.setItem(EXCLUDED_KEY, JSON.stringify(Array.from(excludedDates)));
+  }catch(e){
+    // ブラウザのストレージが使えない環境(プレビュー等)では保存をスキップする。
+  }
+}
+let excludedDates = loadExcluded();
+
+// 開始日の入力値も保存しておき、次回開いた時に復元する
+const START_DATE_KEY = 'mk3-schedule-startdate-v1';
+function loadStartDate(){
+  try{
+    return localStorage.getItem(START_DATE_KEY) || '';
+  }catch(e){
+    return '';
+  }
+}
+function saveStartDate(value){
+  try{
+    localStorage.setItem(START_DATE_KEY, value);
+  }catch(e){
+    // ブラウザのストレージが使えない環境(プレビュー等)では保存をスキップする。
+  }
+}
+(function restoreStartDate(){
+  const saved = loadStartDate();
+  if(saved){
+    const input = document.getElementById('start-date');
+    if(input) input.value = saved;
+  }
+})();
+
+function toDateStr(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+// 1週目は「実際の書籍テーマ(9個)」を、平日なら1テーマ・休日なら2テーマ進むペースで
+// 動的に割り振る。休日がどこに来ても必ず7日間で9テーマぴったり終わる計算になる。
+const BOOK_THEMES = [
+  {name:"テーマ①：マーケティングの基本概念／市場環境", pages:"P.7〜18"},
+  {name:"テーマ②：戦略的マーケティング", pages:"P.19〜30"},
+  {name:"テーマ③：マーケティング・リサーチ", pages:"P.31〜40"},
+  {name:"テーマ④：消費者行動", pages:"P.41〜60"},
+  {name:"テーマ⑤：製品戦略", pages:"P.61〜74"},
+  {name:"テーマ⑥：価格戦略", pages:"P.75〜88"},
+  {name:"テーマ⑦：コミュニケーション戦略", pages:"P.89〜98"},
+  {name:"テーマ⑧：チャネル戦略", pages:"P.99〜112"},
+  {name:"テーマ⑨：サービス・マーケティング", pages:"P.113〜124"}
+];
+
+const weeks = [
+  {
+    goal: "公式問題集を最後まで一通り解き終える。すべての問題に◎△×の記録がついている状態にする。",
+    // 中身は動的に生成するため、ここは7つ分の枠(ダミー)だけ用意しておく。
+    tasks: [{},{},{},{},{},{},{}]
+  },
+  {
+    goal: "2周目を終え、全体の正答率がおおむね70%前後まで到達している状態にする。3週目に取り組む弱点分野を3つ挙げられるようにする。",
+    tasks: [
+      {topic:"×問題の解き直し(前半)",
+       light:"1周目で×だった問題の前半分を解き直す。",
+       heavy:"×問題の前半と、△問題の前半も解き直す。まだ×なら理由をノートに追記。"},
+      {topic:"×問題の解き直し(後半)",
+       light:"×問題の後半分を解き直す。",
+       heavy:"×問題の後半と、△問題の後半も解き直す。"},
+      {topic:"△問題の解き直し(前半)",
+       light:"△問題の前半を解き直し、正解の根拠を確認する。",
+       heavy:"△問題全体を解き直し、まだ自信がないものに印を残す。"},
+      {topic:"△問題の解き直し(後半)",
+       light:"△問題の後半を解き直す。",
+       heavy:"2周目で×△が残る問題だけを集めて再解答する。"},
+      {topic:"弱点分野の洗い出し",
+       light:"2周目で×△が多かった分野を3つ挙げる。",
+       heavy:"弱点分野3つの解説を読み直し、要点をノートに3行以内で追記する。"},
+      {topic:"2周目の総仕上げ(前半)",
+       light:"これまでの△×問題からランダムに選んで再テストする。",
+       heavy:"全△×問題を通しで再解答し、正答率を確認する。"},
+      {topic:"2周目の総まとめ",
+       light:"2周目終了時点の正答率をざっくり計算する。",
+       heavy:"2周目で残った×問題をリスト化し、3週目の弱点補強リストを作る。"}
+    ]
+  },
+  {
+    goal: "通し演習での正答率80%以上を安定して出せる状態にする。",
+    tasks: [
+      {topic:"弱点分野1の重点復習",
+       light:"弱点分野1の問題を解き直す。",
+       heavy:"弱点分野1・2をまとめて解き直し、解説を熟読する。"},
+      {topic:"弱点分野2の重点復習",
+       light:"弱点分野2の問題を解き直す。",
+       heavy:"弱点分野2・3をまとめて解き直す。"},
+      {topic:"弱点分野3の重点復習・ノート見直し",
+       light:"弱点分野3を解き直し、ノートの△×記録を全部読み返す。",
+       heavy:"弱点分野をすべて解き直し、ノートを整理し直す。"},
+      {topic:"用語の最終チェック(前半)",
+       light:"クイズタブの第1〜3テーマ(基本概念/市場環境・戦略的マーケティング・マーケティング・リサーチ)を解く。",
+       heavy:"クイズタブの第1〜5テーマ(基本概念/市場環境〜製品戦略)を解く。間違えた用語をノートに追記。"},
+      {topic:"用語の最終チェック(後半)",
+       light:"クイズタブの第6〜9テーマ(価格戦略・コミュニケーション戦略・チャネル戦略・サービス・マーケティング)を解く。",
+       heavy:"公式問題集の中で今も自信がない問題だけを再確認する。"},
+      {topic:"通し模試演習",
+       light:"公式問題集の一部を時間を測って解く(模試の練習)。",
+       heavy:"公式問題集を通しで時間を測って解く(本番形式の模試演習)。間違えた箇所だけ復習する。"},
+      {topic:"最終総復習",
+       light:"これまでの△×ノートを最初から最後まで読み返す。",
+       heavy:"全△×問題を最終チェックし、クイズタブの復習リストを空にする。受験票・持ち物も確認する。"}
+    ]
+  }
+];
+
+function formatDate(d){
+  const m = d.getMonth()+1;
+  const day = d.getDate();
+  const w = WEEKDAY_LABEL[d.getDay()];
+  return `${m}/${day}(${w})`;
+}
+
+function renderSchedule(){
+  const startInput = document.getElementById('start-date').value;
+  if(!startInput) return;
+  const startDate = new Date(startInput + "T00:00:00");
+  const output = document.getElementById('schedule-output');
+  output.innerHTML = '';
+
+  let slot = 0;
+  let cursorDate = new Date(startDate); // 除外日をスキップしながら進める日付カーソル
+  let bookThemePointer = 0; // 1週目専用: 実際の書籍テーマの進捗ポインタ
+  weeks.forEach((week, weekIdx) => {
+    const weekBlock = document.createElement('div');
+    weekBlock.className = 'week-block';
+
+    const weekTitle = document.createElement('div');
+    weekTitle.className = 'week-title';
+    weekTitle.textContent = `第${weekIdx+1}週`;
+    weekBlock.appendChild(weekTitle);
+
+    const table = document.createElement('table');
+    table.className = 'plan';
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th style="width:78px;">日付</th>
+          <th>学習内容</th>
+          <th style="width:52px;">目安時間</th>
+          <th>具体的な作業</th>
+          <th style="width:34px;">完了</th>
+          <th class="col-action no-print" style="width:96px;">操作</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+    const tbody = table.querySelector('tbody');
+
+    week.tasks.forEach((task) => {
+      // 除外指定された日はスキップして、次の使える日まで進める
+      while(excludedDates.has(toDateStr(cursorDate))){
+        cursorDate.setDate(cursorDate.getDate() + 1);
+      }
+      const d = new Date(cursorDate);
+      const dateStr = toDateStr(d);
+      cursorDate.setDate(cursorDate.getDate() + 1); // 次のタスク用に1日進めておく
+
+      const dow = d.getDay();
+      const isWeekend = (dow === 0 || dow === 6);
+      const timeLabel = isWeekend ? "90分" : "20分";
+
+      let topicLabel, work;
+      if(weekIdx === 0){
+        // 平日は1テーマ、休日は2テーマ分をポインタから取り出す。
+        // 休日がどこに来ても、7日間で必ずBOOK_THEMES(9個)をちょうど使い切る。
+        const count = isWeekend ? 2 : 1;
+        const chunk = BOOK_THEMES.slice(bookThemePointer, bookThemePointer + count);
+        bookThemePointer += count;
+        topicLabel = chunk.map(t => t.name.replace(/^テーマ[①-⑨]：/, '')).join('・');
+        work = chunk.map(t => `${t.name}(${t.pages})を解く`).join('。') + '。◎△×を記録する。';
+        if(bookThemePointer >= BOOK_THEMES.length){
+          work += ' 1周目が終わったら、△×の数をざっくり数えて多い分野を3行以内でメモしておく。';
+        }
+      } else {
+        topicLabel = task.topic;
+        work = isWeekend ? task.heavy : task.light;
+      }
+
+      const tr = document.createElement('tr');
+      if(isWeekend) tr.className = 'weekend';
+      const mySlot = slot; // このチェックボックス専用のスロット番号を固定して保持する
+      tr.innerHTML = `
+        <td class="col-date" data-label="日付">${formatDate(d)}</td>
+        <td data-label="学習内容">${topicLabel}</td>
+        <td class="col-time" data-label="目安時間">${timeLabel}</td>
+        <td data-label="具体的な作業">${work}</td>
+        <td class="col-check" data-label="完了"><input type="checkbox" data-slot="${mySlot}"></td>
+        <td class="col-action no-print" data-label="操作"><button class="skip-btn" data-date="${dateStr}">この日は無理</button></td>
+      `;
+      tbody.appendChild(tr);
+
+      const checkbox = tr.querySelector('input[type="checkbox"]');
+      checkbox.checked = !!checksState[mySlot];
+      checkbox.addEventListener('change', () => {
+        checksState[mySlot] = checkbox.checked;
+        saveChecks(checksState);
+      });
+
+      const skipBtn = tr.querySelector('.skip-btn');
+      skipBtn.addEventListener('click', () => {
+        excludedDates.add(dateStr);
+        saveExcluded();
+        renderSchedule();
+        renderExcludedPanel();
+      });
+
+      slot++;
+    });
+
+    weekBlock.appendChild(table);
+
+    const goalDiv = document.createElement('div');
+    goalDiv.className = 'week-goal';
+    goalDiv.innerHTML = `<strong>第${weekIdx+1}週の達成目標</strong>${week.goal}`;
+    weekBlock.appendChild(goalDiv);
+
+    output.appendChild(weekBlock);
+  });
+}
+
+function renderExcludedPanel(){
+  const el = document.getElementById('excluded-panel');
+  if(!el) return;
+  const dates = Array.from(excludedDates).sort();
+
+  if(dates.length === 0){
+    el.innerHTML = '';
+    return;
+  }
+
+  const chips = dates.map(dstr => {
+    const d = new Date(dstr + "T00:00:00");
+    return `<span class="excluded-chip">${formatDate(d)}<button data-date="${dstr}" title="除外を取り消す">×</button></span>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="excluded-panel">
+      <strong>除外中の日付(その分は後ろ倒しになっとる)</strong>
+      <div class="excluded-list">${chips}</div>
+    </div>
+  `;
+
+  el.querySelectorAll('.excluded-chip button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      excludedDates.delete(btn.dataset.date);
+      saveExcluded();
+      renderSchedule();
+      renderExcludedPanel();
+    });
+  });
+}
+
+document.getElementById('generate-btn').addEventListener('click', () => {
+  saveStartDate(document.getElementById('start-date').value);
+  renderSchedule();
+  renderExcludedPanel();
+});
+document.getElementById('start-date').addEventListener('change', () => {
+  saveStartDate(document.getElementById('start-date').value);
+});
+document.getElementById('reset-checks-btn').addEventListener('click', () => {
+  checksState = {};
+  saveChecks(checksState);
+  renderSchedule();
+});
+renderSchedule();
+renderExcludedPanel();
+
+/* ===================== クイズ機能 ===================== */
+const SET_THEMES = ["テーマ①：マーケティングの基本概念／市場環境", "テーマ②：戦略的マーケティング", "テーマ③：マーケティング・リサーチ", "テーマ④：消費者行動", "テーマ⑤：製品戦略", "テーマ⑥：価格戦略", "テーマ⑦：コミュニケーション戦略", "テーマ⑧：チャネル戦略", "テーマ⑨：サービス・マーケティング"];
+
+const allQuestions = [
+  {"cat": "テーマ①：マーケティングの基本概念／市場環境", "q": "アメリカ・マーケティング協会(AMA)の定義において、マーケティングとは何を行う活動とされているか。", "choices": ["広告によって需要を人為的に作り出す活動", "顧客に価値を創造し、伝達し、提供し、交換する活動", "製品を効率よく大量生産する活動", "販売員を動員して商品を売り込む活動"], "answer": 1, "exp": "マーケティングは販売活動そのものではなく、価値の創造・伝達・提供・交換に関わる一連の活動と定義される。"},
+  {"cat": "テーマ①：マーケティングの基本概念／市場環境", "q": "「作ったものを売る」ではなく「売れるものを作る」という発想を表す考え方はどれか。", "choices": ["コストリーダーシップ", "プロダクトアウト", "プッシュ戦略", "マーケットイン"], "answer": 3, "exp": "マーケットインは顧客ニーズを起点に製品を企画する考え方。技術や生産側の都合を起点にするのがプロダクトアウト。"},
+  {"cat": "テーマ①：マーケティングの基本概念／市場環境", "q": "マーケティング・コンセプトの発展段階として、一般に正しい順序はどれか。", "choices": ["生産志向→製品志向→販売志向→顧客志向", "顧客志向→販売志向→製品志向→生産志向", "販売志向→生産志向→顧客志向→製品志向", "製品志向→顧客志向→生産志向→販売志向"], "answer": 0, "exp": "作れば売れる時代の生産志向から、品質重視の製品志向、売り込み重視の販売志向を経て、顧客ニーズ起点の顧客志向へと発展した。"},
+  {"cat": "テーマ①：マーケティングの基本概念／市場環境", "q": "自社の事業を製品の物理的側面だけで狭く定義してしまい、市場の変化を見誤ることを指す言葉はどれか。", "choices": ["マーケティング近視眼(マーケティング・マイオピア)", "コモディティ化", "チャネル・コンフリクト", "カニバリゼーション"], "answer": 0, "exp": "レビットが指摘した概念。「鉄道業」ではなく「輸送業」と捉えるべきだったという例で説明される。"},
+  {"cat": "テーマ①：マーケティングの基本概念／市場環境", "q": "「ニーズ」と「ウォンツ」の関係について正しい説明はどれか。", "choices": ["ニーズは根源的な欠乏感、ウォンツはそれを満たす特定の対象への欲求である", "両者は同義であり区別されない", "ウォンツは企業側の希望、ニーズは消費者側の希望である", "ニーズは特定の製品への欲求、ウォンツは根源的な欠乏感である"], "answer": 0, "exp": "「空腹」がニーズ、「あのラーメンが食べたい」がウォンツにあたる。ウォンツは文化や個人の経験によって形を変える。"},
+  {"cat": "テーマ①：マーケティングの基本概念／市場環境", "q": "需要が供給能力を超えて過剰な場合に、あえて需要を抑制するマーケティング活動を何と呼ぶか。", "choices": ["デマーケティング", "ソーシャル・マーケティング", "マス・マーケティング", "リマーケティング"], "answer": 0, "exp": "デマーケティングは混雑期の値上げや広告抑制などで需要を意図的に減らす活動。需要状態に応じた対応の一つ。"},
+  {"cat": "テーマ①：マーケティングの基本概念／市場環境", "q": "マーケティングミックス(4P)の構成要素として正しい組み合わせはどれか。", "choices": ["Product・People・Process・Promotion", "Product・Price・Place・Promotion", "Price・Place・Profit・Promotion", "Product・Price・Planning・Place"], "answer": 1, "exp": "4Pは製品・価格・流通・プロモーションの4要素。企業が管理可能な手段を組み合わせて市場に働きかける枠組み。"},
+  {"cat": "テーマ①：マーケティングの基本概念／市場環境", "q": "4Pを顧客視点に置き換えた「4C」において、Place(流通)に対応する要素はどれか。", "choices": ["Convenience", "Communication", "Cost", "Customer Value"], "answer": 0, "exp": "4CはCustomer Value・Cost・Convenience・Communicationの4つで、それぞれProduct・Price・Place・Promotionに対応する。"},
+  {"cat": "テーマ①：マーケティングの基本概念／市場環境", "q": "企業利益や顧客満足だけでなく、社会全体の福祉や環境への配慮も考慮する考え方を何と呼ぶか。", "choices": ["ダイレクト・マーケティング", "インターナル・マーケティング", "ニッチ・マーケティング", "ソーシャル・マーケティング(社会志向のマーケティング)"], "answer": 3, "exp": "社会志向のマーケティングは、企業の利益・顧客の満足・社会の利益の3者のバランスを重視する。"},
+  {"cat": "テーマ①：マーケティングの基本概念／市場環境", "q": "従業員を対象に、顧客志向の意識やサービス品質を高めるために行うマーケティング活動を何と呼ぶか。", "choices": ["インターナル・マーケティング", "リレーションシップ・マーケティング", "エクスターナル・マーケティング", "インタラクティブ・マーケティング"], "answer": 0, "exp": "インターナル・マーケティングは社内(従業員)向けの活動。サービス業では従業員の質が顧客満足に直結するため重視される。"},
+  {"cat": "テーマ②：戦略的マーケティング", "q": "市場を似たニーズを持つ集団に分割することを何と呼ぶか。", "choices": ["ターゲティング", "ポジショニング", "ブランディング", "セグメンテーション"], "answer": 3, "exp": "セグメンテーションは市場細分化。異質な市場を同質性の高い小集団に分けることで対応精度を高める。"},
+  {"cat": "テーマ②：戦略的マーケティング", "q": "細分化した市場の中から、自社が経営資源を集中させる市場を選ぶプロセスを何と呼ぶか。", "choices": ["ポジショニング", "セグメンテーション", "ターゲティング", "ディファレンシエーション"], "answer": 2, "exp": "ターゲティングは狙う市場の選定。市場の魅力度と自社の適合性の両面から判断する。"},
+  {"cat": "テーマ②：戦略的マーケティング", "q": "自社製品が競合と比べて顧客の心の中でどの位置を占めるかを設計する活動を何と呼ぶか。", "choices": ["ポジショニング", "ターゲティング", "セグメンテーション", "マーチャンダイジング"], "answer": 0, "exp": "ポジショニングは知覚上の位置づけの設計。顧客にとって意味のある差異を明確にすることが要点。"},
+  {"cat": "テーマ②：戦略的マーケティング", "q": "限られた経営資源を特定の狭いセグメントに集中させる戦略は、一般にどのような企業に適するか。", "choices": ["多角化を最優先する企業", "経営資源が限られた中小企業やニッチ志向の企業", "経営資源が豊富な最大手企業", "価格競争のみで戦う企業"], "answer": 1, "exp": "集中型マーケティングは資源を一点に集めて特定市場で優位を築く方法で、資源の限られた企業に向く。"},
+  {"cat": "テーマ②：戦略的マーケティング", "q": "マクロ環境を政治・経済・社会・技術の4側面から分析する枠組みはどれか。", "choices": ["3C分析", "VRIO分析", "PEST分析", "SWOT分析"], "answer": 2, "exp": "PESTはPolitics・Economy・Society・Technologyの頭文字。外部のマクロ要因を整理する手法。"},
+  {"cat": "テーマ②：戦略的マーケティング", "q": "SWOT分析における「機会」と「脅威」は、それぞれ何に関する要因か。", "choices": ["機会は内部、脅威は外部の要因", "機会は外部、脅威は内部の要因", "いずれも内部環境要因", "いずれも外部環境要因"], "answer": 3, "exp": "強み・弱みが内部環境要因、機会・脅威が外部環境要因。内部と外部を掛け合わせて戦略を導く。"},
+  {"cat": "テーマ②：戦略的マーケティング", "q": "3C分析が対象とする3つの視点の組み合わせはどれか。", "choices": ["Customer・Competitor・Company", "Customer・Cost・Communication", "Cost・Channel・Customer", "Company・Culture・Competitor"], "answer": 0, "exp": "3C分析は市場・顧客、競合、自社の3視点から事業環境を整理する枠組み。"},
+  {"cat": "テーマ②：戦略的マーケティング", "q": "ポーターの5フォース分析の5つの競争要因に含まれないものはどれか。", "choices": ["新規参入の脅威", "売り手の交渉力", "代替品の脅威", "為替相場の変動"], "answer": 3, "exp": "5フォースは新規参入・代替品・売り手交渉力・買い手交渉力・既存企業間の敵対関係。為替はマクロ環境の要因。"},
+  {"cat": "テーマ②：戦略的マーケティング", "q": "アンゾフの成長マトリクスにおいて、既存市場に既存製品をさらに売り込む戦略はどれか。", "choices": ["多角化戦略", "新市場開拓戦略", "新製品開発戦略", "市場浸透戦略"], "answer": 3, "exp": "既存製品×既存市場が市場浸透戦略。使用頻度向上や競合からのシェア奪取などで成長を図る。"},
+  {"cat": "テーマ②：戦略的マーケティング", "q": "ポーターが示した3つの基本戦略の組み合わせとして正しいものはどれか。", "choices": ["コストリーダーシップ・差別化・集中", "市場浸透・新製品開発・多角化", "無差別型・差別型・集中型", "生産志向・製品志向・販売志向"], "answer": 0, "exp": "ポーターの3つの基本戦略はコストリーダーシップ・差別化・集中(フォーカス)。競争優位の築き方の型を示す。"},
+  {"cat": "テーマ③：マーケティング・リサーチ", "q": "マーケティング・リサーチの一般的な手順として正しい順序はどれか。", "choices": ["分析→データ収集→課題の設定→報告→調査計画の立案", "データ収集→課題の設定→分析→調査計画の立案→報告", "課題の設定→調査計画の立案→データ収集→分析→報告", "調査計画の立案→報告→課題の設定→データ収集→分析"], "answer": 2, "exp": "何を明らかにしたいかを定めてから設計する。課題設定が曖昧なままの調査は結論に結びつきにくい。"},
+  {"cat": "テーマ③：マーケティング・リサーチ", "q": "調査目的のために新たに収集するデータを何と呼ぶか。", "choices": ["オープンデータ", "一次データ", "二次データ", "パネルデータ"], "answer": 1, "exp": "一次データは目的に合致するが費用と時間がかかる。既存の統計や社内資料などが二次データ。"},
+  {"cat": "テーマ③：マーケティング・リサーチ", "q": "既存の官公庁統計や業界レポートを活用する利点として適切なものはどれか。", "choices": ["競合が入手できない独自情報になる", "比較的低コスト・短時間で入手できる", "常に最新の状況が反映されている", "調査目的に完全に合致したデータが必ず得られる"], "answer": 1, "exp": "二次データは安価で早いが、目的との不一致や情報の古さに注意が必要。まず二次、必要なら一次が基本。"},
+  {"cat": "テーマ③：マーケティング・リサーチ", "q": "数値化して統計的に分析することを主目的とする調査手法はどれか。", "choices": ["エスノグラフィー", "定量調査", "定性調査", "デプスインタビュー"], "answer": 1, "exp": "定量調査は傾向や割合の把握に向く。理由や動機の深掘りには定性調査が適する。"},
+  {"cat": "テーマ③：マーケティング・リサーチ", "q": "少人数を集めて座談会形式で自由に意見を引き出す定性調査の手法を何と呼ぶか。", "choices": ["郵送アンケート調査", "A/Bテスト", "POSデータ分析", "フォーカスグループインタビュー(FGI)"], "answer": 3, "exp": "FGIは参加者同士の相互作用から発想が広がる利点がある。一方で結果の一般化には慎重さが必要。"},
+  {"cat": "テーマ③：マーケティング・リサーチ", "q": "母集団全体ではなく、その一部を抽出して調査することを何と呼ぶか。", "choices": ["実験法", "全数調査(センサス)", "観察法", "標本調査(サンプリング)"], "answer": 3, "exp": "標本調査はコストと時間を抑えられる。標本に偏りがあると母集団の推定が歪む点に注意が必要。"},
+  {"cat": "テーマ③：マーケティング・リサーチ", "q": "消費者の行動を実際の場面で観察し、言葉にされない実態を把握する手法を何と呼ぶか。", "choices": ["実験法", "質問法", "観察法", "文献調査"], "answer": 2, "exp": "観察法は本人が自覚していない行動を捉えられる。ただし動機や理由そのものは分かりにくい。"},
+  {"cat": "テーマ③：マーケティング・リサーチ", "q": "条件を人為的に統制したうえで、ある要因が結果に与える影響を検証する調査手法を何と呼ぶか。", "choices": ["実験法", "観察法", "文献調査", "デルファイ法"], "answer": 0, "exp": "実験法は変数をコントロールした環境で因果関係を検証する手法。ウェブ上のA/Bテストもこの考え方に近い。"},
+  {"cat": "テーマ③：マーケティング・リサーチ", "q": "アンケート用紙や面接などを通じて回答者に直接尋ね、情報を収集する調査手法を何と呼ぶか。", "choices": ["質問法", "観察法", "実験法", "投影法"], "answer": 0, "exp": "質問法は最も広く使われる収集手法。郵送・訪問・電話・インターネットなど多様な実施方法がある。"},
+  {"cat": "テーマ③：マーケティング・リサーチ", "q": "マーケティング・リサーチが企業活動において果たす基本的な役割として、最も適切なものはどれか。", "choices": ["過去の売上を正確に記帳すること", "経営者の勘や経験だけに頼らず、意思決定の不確実性を減らすこと", "競合他社の内部資料を入手すること", "製造コストを直接的に削減すること"], "answer": 1, "exp": "マーケティング・リサーチは、勘や経験だけに頼った意思決定のリスクを減らし、客観的な情報で判断を支える役割を持つ。"},
+  {"cat": "テーマ④：消費者行動", "q": "消費者の購買意思決定プロセスの一般的な順序として正しいものはどれか。", "choices": ["代替品評価→情報探索→問題認識→購買決定→購買後行動", "情報探索→問題認識→購買決定→代替品評価→購買後行動", "問題認識→購買決定→情報探索→代替品評価→購買後行動", "問題認識→情報探索→代替品評価→購買決定→購買後行動"], "answer": 3, "exp": "5段階モデル。理想と現状のギャップを認識してから情報を集め、比較し、購入し、その評価に至る流れ。"},
+  {"cat": "テーマ④：消費者行動", "q": "購買意思決定プロセスの「問題認識」が生じるきっかけとして適切な説明はどれか。", "choices": ["店頭で販売員に声をかけられたとき", "購入後に不安を感じたとき", "複数ブランドの価格を比較し終えたとき", "理想の状態と現実の状態にギャップを感じたとき"], "answer": 3, "exp": "問題認識は、理想と現実のギャップの自覚から始まる。内部刺激(空腹など)や外部刺激(広告など)が引き金になる。"},
+  {"cat": "テーマ④：消費者行動", "q": "消費者が自分の記憶や過去の経験から情報を引き出すことを何と呼ぶか。", "choices": ["知覚リスク", "内部探索", "外部探索", "選択的注意"], "answer": 1, "exp": "内部探索は記憶内の情報を使うこと。それで足りない場合に広告や口コミなどの外部探索に移る。"},
+  {"cat": "テーマ④：消費者行動", "q": "消費者が購買の候補として実際に思い浮かべ、比較検討する少数のブランド群を何と呼ぶか。", "choices": ["セグメント", "準拠集団", "拒否集合", "想起集合(考慮集合)"], "answer": 3, "exp": "想起集合に入らないブランドは検討対象にすらならないため、ブランド認知の獲得が重要になる。"},
+  {"cat": "テーマ④：消費者行動", "q": "購入後に「本当にこれで良かったのか」と感じる心理的な不安や葛藤を何と呼ぶか。", "choices": ["選択的保持", "認知的不協和", "関与", "知覚品質"], "answer": 1, "exp": "認知的不協和は購買後に生じる心理的な不快感。企業はアフターフォローや情報提供で低減を図る。"},
+  {"cat": "テーマ④：消費者行動", "q": "高額で購入頻度の低い製品を買う際に、消費者が慎重に情報収集する状況を説明する概念はどれか。", "choices": ["低関与の購買", "習慣的購買", "高関与の購買", "衝動購買"], "answer": 2, "exp": "関与とは対象への重要性の認識や思い入れの強さ。高関与では情報探索と比較検討が入念になる。"},
+  {"cat": "テーマ④：消費者行動", "q": "購買心理プロセスモデル「AIDMA」の構成要素として正しい順序はどれか。", "choices": ["Attention→Interest→Desire→Memory→Action", "Attention→Desire→Interest→Memory→Action", "Awareness→Interest→Desire→Action→Memory", "Attention→Interest→Search→Action→Share"], "answer": 0, "exp": "AIDMAは注意→関心→欲求→記憶→行動。マスメディア時代の購買心理プロセスを表す古典的モデル。"},
+  {"cat": "テーマ④：消費者行動", "q": "インターネット時代の購買行動モデル「AISAS」において、AIDMAには存在しない要素はどれか。", "choices": ["Desire と Memory", "Action と Attention", "Attention と Interest", "Search と Share"], "answer": 3, "exp": "AISASでは検索(Search)と共有(Share)が加わる。購入後にSNS等で発信する行動が組み込まれている点が特徴。"},
+  {"cat": "テーマ④：消費者行動", "q": "消費者の価値観や購買行動に影響を与える、家族・友人・同僚などの集団を何と呼ぶか。", "choices": ["想起集合", "オピニオンリーダー", "セグメント", "準拠集団"], "answer": 3, "exp": "準拠集団は個人が判断や行動の基準として参照する集団。家族や職場、憧れの集団などが含まれる。"},
+  {"cat": "テーマ④：消費者行動", "q": "マズローの欲求階層説において、最も低次(基礎的)に位置づけられる欲求はどれか。", "choices": ["生理的欲求", "所属と愛の欲求", "自己実現の欲求", "安全の欲求"], "answer": 0, "exp": "生理的欲求→安全→所属と愛→承認→自己実現の順に高次化する。低次が満たされると高次の欲求が現れるとされる。"},
+  {"cat": "テーマ⑤：製品戦略", "q": "製品を「中核」「実体」「付随機能」の3層で捉える考え方において、保証やアフターサービスはどの層にあたるか。", "choices": ["付随機能(拡大)", "実体(形態)", "中核(コア)", "いずれにも含まれない"], "answer": 0, "exp": "中核は顧客が得る本質的な便益、実体は品質やデザインなど具体的形態、付随機能は保証・配送・アフターサービスなど。"},
+  {"cat": "テーマ⑤：製品戦略", "q": "消費財の分類のうち、購入頻度が高く、比較検討にあまり労力をかけない製品はどれか。", "choices": ["非探索品", "専門品", "最寄品", "買回品"], "answer": 2, "exp": "最寄品は日用品など。手軽さが重要なため、幅広い店舗で取り扱う開放的チャネル政策が適する。"},
+  {"cat": "テーマ⑤：製品戦略", "q": "消費財の分類のうち、消費者が特定ブランドに強いこだわりを持ち、入手に特別な努力を払う製品はどれか。", "choices": ["最寄品", "専門品", "非探索品", "買回品"], "answer": 1, "exp": "専門品は高級車やブランド品など。指名購買されるため、限定的なチャネルでも成立する。"},
+  {"cat": "テーマ⑤：製品戦略", "q": "生命保険や墓石のように、消費者が普段は関心を持たず自ら探そうとしない製品を何と呼ぶか。", "choices": ["買回品", "非探索品", "専門品", "最寄品"], "answer": 1, "exp": "非探索品は消費者側の探索意欲が低いため、人的販売や広告による積極的な働きかけが必要になる。"},
+  {"cat": "テーマ⑤：製品戦略", "q": "企業が扱う製品ラインの数を指す概念はどれか。", "choices": ["製品の3層構造", "製品ミックスの深さ", "製品ライフサイクル", "製品ミックスの幅"], "answer": 3, "exp": "幅は製品ラインの数、深さは各ライン内のアイテム数を指す。両者の組み合わせが製品ミックスを構成する。"},
+  {"cat": "テーマ⑤：製品戦略", "q": "プロダクトライフサイクルの4段階の順序として正しいものはどれか。", "choices": ["導入期→成長期→衰退期→成熟期", "成長期→導入期→成熟期→衰退期", "導入期→成熟期→成長期→衰退期", "導入期→成長期→成熟期→衰退期"], "answer": 3, "exp": "売上と利益の推移から市場の局面を捉えるモデル。各段階で適したマーケティング施策が変わる。"},
+  {"cat": "テーマ⑤：製品戦略", "q": "プロダクトライフサイクルの導入期の一般的な特徴として適切なものはどれか。", "choices": ["売上・利益がともに最大化している", "競合が最も多く、価格競争が激化している", "売上は小さく、認知獲得のための費用負担が大きい", "市場が縮小し撤退の判断が必要になる"], "answer": 2, "exp": "導入期は認知度が低く販促費が先行するため、利益が出にくい。まず知ってもらうことが課題となる。"},
+  {"cat": "テーマ⑤：製品戦略", "q": "プロダクトライフサイクルの成熟期における一般的な特徴はどれか。", "choices": ["売上が急速に縮小していく", "製品がまだ市場に知られていない", "需要が一巡し、競合間のシェア争いや差別化が焦点になる", "市場が急拡大し新規参入が相次ぐ"], "answer": 2, "exp": "成熟期は市場成長が鈍化し、既存需要の取り合いになる。ブランド強化やモデルチェンジで対応する。"},
+  {"cat": "テーマ⑤：製品戦略", "q": "新製品の採用者を採用の早い順に分類したとき、最も早期に採用する層はどれか。", "choices": ["アーリーアダプター(初期採用者)", "アーリーマジョリティ(前期追随者)", "イノベーター(革新者)", "ラガード(遅滞者)"], "answer": 2, "exp": "イノベーター→アーリーアダプター→アーリーマジョリティ→レイトマジョリティ→ラガードの順。普及の初期段階を担う。"},
+  {"cat": "テーマ⑤：製品戦略", "q": "ブランドが顧客の認知やロイヤルティによってもたらす資産的な価値を何と呼ぶか。", "choices": ["ブランド・エクステンション", "ブランド・エクイティ", "ブランド・スイッチング", "コ・ブランディング"], "answer": 1, "exp": "ブランド・エクイティはブランド認知・ブランド連想・知覚品質・ロイヤルティなどから構成される資産価値。"},
+  {"cat": "テーマ⑥：価格戦略", "q": "価格設定の基本的な3つのアプローチの組み合わせとして正しいものはどれか。", "choices": ["コスト志向・需要志向・競争志向", "高価格・中価格・低価格", "原価法・比較法・収益法", "定価・実売価格・希望価格"], "answer": 0, "exp": "原価を基準にするコスト志向、顧客が感じる価値を基準にする需要志向、競合水準を基準にする競争志向の3つ。"},
+  {"cat": "テーマ⑥：価格戦略", "q": "原価に一定の利益率を上乗せして価格を決める方法を何と呼ぶか。", "choices": ["コストプラス法", "実勢価格法", "知覚価値法", "入札価格法"], "answer": 0, "exp": "コストプラス法は計算が容易な反面、顧客が感じる価値や競合水準を反映しにくい点が弱点。"},
+  {"cat": "テーマ⑥：価格戦略", "q": "新製品の導入時に高い価格を設定し、価格に敏感でない層から早期に利益を回収する戦略はどれか。", "choices": ["上澄み吸収価格戦略(スキミング・プライシング)", "ロスリーダー戦略", "市場浸透価格戦略(ペネトレーション・プライシング)", "端数価格戦略"], "answer": 0, "exp": "スキミングは技術優位や独自性がある場合に有効。段階的に価格を下げて需要層を広げていく。"},
+  {"cat": "テーマ⑥：価格戦略", "q": "新製品を意図的に低価格で投入し、早期に市場シェアを確保する戦略はどれか。", "choices": ["威光価格戦略", "上澄み吸収価格戦略", "市場浸透価格戦略", "キャプティブ価格戦略"], "answer": 2, "exp": "ペネトレーション・プライシングは規模の経済が働く市場や価格弾力性の高い市場で有効とされる。"},
+  {"cat": "テーマ⑥：価格戦略", "q": "「1,980円」のように価格の末尾を調整し、割安感を与える手法を何と呼ぶか。", "choices": ["端数価格", "威光価格", "均一価格", "慣習価格"], "answer": 0, "exp": "端数価格は心理的な安さの演出を狙う。切りのよい価格より安く感じられる効果を利用する。"},
+  {"cat": "テーマ⑥：価格戦略", "q": "あえて高い価格を設定し、高品質・高級というイメージを訴求する手法を何と呼ぶか。", "choices": ["浸透価格", "ロスリーダー価格", "端数価格", "威光価格(プレステージ価格)"], "answer": 3, "exp": "威光価格は価格自体が品質のシグナルになる場合に用いる。宝飾品や高級ブランドで典型的。"},
+  {"cat": "テーマ⑥：価格戦略", "q": "本体を安く販売し、消耗品や付属品で継続的に利益を得る価格設定を何と呼ぶか。", "choices": ["慣習価格", "抱き合わせ価格", "差別価格", "キャプティブ価格(虜価格)"], "answer": 3, "exp": "プリンター本体とインクの関係が典型例。本体で顧客を囲い込み、消耗品で収益を上げる構造。"},
+  {"cat": "テーマ⑥：価格戦略", "q": "特定商品を著しく安く販売して集客し、他商品の購買につなげる手法を何と呼ぶか。", "choices": ["ロスリーダー(おとり価格)", "スキミング価格", "威光価格", "端数価格"], "answer": 0, "exp": "ロスリーダーは小売業の集客手法。特売品自体の利益は薄いか赤字でも、店全体の売上増を狙う。"},
+  {"cat": "テーマ⑥：価格戦略", "q": "価格の変化に対して需要量が大きく変動する状態を指す言葉はどれか。", "choices": ["需要の価格弾力性が高い", "需要が固定的である", "需要の価格弾力性が低い", "需要が非弾力的である"], "answer": 0, "exp": "弾力性が高い場合は値下げによる数量増が期待でき、低い場合は値上げでも需要が大きく落ちにくい。"},
+  {"cat": "テーマ⑥：価格戦略", "q": "同じ製品について、顧客層や時間帯・購入場所によって異なる価格を設定することを何と呼ぶか。", "choices": ["価格差別(差別価格)", "統一価格", "慣習価格", "オープン価格"], "answer": 0, "exp": "早割や学生割引、時間帯別料金などが例。支払意思額の違いに応じて収益を最大化する狙いがある。"},
+  {"cat": "テーマ⑦：コミュニケーション戦略", "q": "プロモーション・ミックスを構成する4つの手段の組み合わせとして正しいものはどれか。", "choices": ["広告・価格・流通・製品", "広告・人的販売・販売促進・PR(パブリシティ)", "広告・値引き・陳列・接客", "テレビ・新聞・雑誌・ラジオ"], "answer": 1, "exp": "広告、人的販売、販売促進(SP)、PR/パブリシティの4手段を組み合わせて顧客に働きかける。"},
+  {"cat": "テーマ⑦：コミュニケーション戦略", "q": "広告の特徴として適切な説明はどれか。", "choices": ["費用を払って媒体枠を購入し、明示された広告主が発信する", "販売員が対面で個別に説明する", "第三者の口コミによって自然に広がる", "報道として無償で取り上げられる"], "answer": 0, "exp": "広告は有料・非人的・広告主が明示されるコミュニケーション。同時に多数へ到達できる点が強み。"},
+  {"cat": "テーマ⑦：コミュニケーション戦略", "q": "企業が費用を負担せず、報道機関に取り上げられることで情報が伝わる活動を何と呼ぶか。", "choices": ["パブリシティ", "人的販売", "セールスプロモーション", "広告"], "answer": 0, "exp": "パブリシティは第三者を介するため信頼性が高い一方、内容や掲載可否を企業が統制できない。"},
+  {"cat": "テーマ⑦：コミュニケーション戦略", "q": "人的販売の特徴として最も適切な説明はどれか。", "choices": ["顧客の反応を見ながら双方向でやり取りでき、説得力が高い", "一度に多数へ低コストで到達できる", "掲載内容を企業が統制できない", "短期的な購買刺激を目的とした値引き施策である"], "answer": 0, "exp": "人的販売は双方向性と柔軟性が強み。ただし一人当たりのコストが高く、広範な到達には向かない。"},
+  {"cat": "テーマ⑦：コミュニケーション戦略", "q": "サンプル配布・クーポン・増量パックなど、短期的な購買刺激を狙う施策の総称はどれか。", "choices": ["セールスプロモーション(販売促進)", "IMC", "パブリシティ", "ブランディング"], "answer": 0, "exp": "SPは即効性が高い反面、多用するとブランド価値の低下や値引き依存を招く恐れがある。"},
+  {"cat": "テーマ⑦：コミュニケーション戦略", "q": "消費者に直接働きかけて指名購買を促し、流通業者に取り扱わせる方向に導く戦略を何と呼ぶか。", "choices": ["サンプリング戦略", "プッシュ戦略", "プル戦略", "リベート戦略"], "answer": 2, "exp": "プル戦略は広告等で消費者需要を作り、流通業者を引き寄せる。逆に流通業者への働きかけ中心はプッシュ戦略。"},
+  {"cat": "テーマ⑦：コミュニケーション戦略", "q": "ペイドメディア・オウンドメディア・アーンドメディアのうち、自社サイトや公式SNSはどれにあたるか。", "choices": ["ペイドメディア", "アーンドメディア", "オウンドメディア", "いずれにも含まれない"], "answer": 2, "exp": "オウンドメディアは自社が保有し発信内容を統制できる媒体。ペイドは購入した広告枠、アーンドは口コミ等。"},
+  {"cat": "テーマ⑦：コミュニケーション戦略", "q": "口コミやSNSでの言及など、第三者の発信によって獲得される露出はどれにあたるか。", "choices": ["ペイドメディア", "アーンドメディア", "オウンドメディア", "マスメディア"], "answer": 1, "exp": "アーンドメディアは信頼性が高いが企業側の統制が及ばない。ネガティブな評判も拡散し得る。"},
+  {"cat": "テーマ⑦：コミュニケーション戦略", "q": "複数のコミュニケーション手段を一貫したメッセージで統合的に管理する考え方を何と呼ぶか。", "choices": ["SP", "AIDMA", "VMS", "IMC(統合型マーケティング・コミュニケーション)"], "answer": 3, "exp": "IMCは媒体ごとにメッセージがばらつくのを防ぎ、ブランドの一貫性と相乗効果を高める考え方。"},
+  {"cat": "テーマ⑦：コミュニケーション戦略", "q": "広告の効果指標のうち、一定期間に広告が到達した人数の割合を指すものはどれか。", "choices": ["コンバージョン", "インプレッション単価", "フリークエンシー", "リーチ"], "answer": 3, "exp": "リーチは到達の広さ、フリークエンシーは一人当たりの接触回数。両者のバランスで媒体計画を組む。"},
+  {"cat": "テーマ⑧：チャネル戦略", "q": "生産者から最終消費者に製品が届くまでの経路や、それを構成する組織群を何と呼ぶか。", "choices": ["バリューチェーン", "プロモーション・ミックス", "流通チャネル(マーケティング・チャネル)", "サプライチェーン"], "answer": 2, "exp": "流通チャネルは卸売業者や小売業者などの流通業者から構成される。所有権の移転経路を指す。"},
+  {"cat": "テーマ⑧：チャネル戦略", "q": "生産者が卸売業者や小売業者を介さず、自ら消費者に販売する形態を何と呼ぶか。", "choices": ["並行流通", "直接流通", "垂直流通", "間接流通"], "answer": 1, "exp": "産地直送やメーカー直営のECサイトなどが例。中間マージンを抑えられるが自社の販売機能が必要になる。"},
+  {"cat": "テーマ⑧：チャネル戦略", "q": "流通業者が存在することによる社会的な効果として適切な説明はどれか。", "choices": ["消費者の選択肢を必ず狭める", "生産者と消費者の間の取引総数を減らし、流通の効率を高める", "生産者の在庫を必ず増加させる", "取引総数が増え、流通コストが上昇する"], "answer": 1, "exp": "取引総数最小化の原理。仲介業者が入ることで個別取引の組み合わせ数が減り、社会全体の流通が効率化する。"},
+  {"cat": "テーマ⑧：チャネル戦略", "q": "卸売業者が果たす機能として適切でないものはどれか。", "choices": ["取引情報を収集し生産者に伝える", "生産者からまとまった量を仕入れて小分けする", "在庫を保有し、需給の時間的なズレを調整する", "最終消費者への直接的な使用指導のみを専門に行う"], "answer": 3, "exp": "卸売業の主な機能は品揃え形成、在庫保有による需給調整、情報伝達、金融機能など。消費者対応は主に小売業が担う。"},
+  {"cat": "テーマ⑧：チャネル戦略", "q": "できるだけ多くの販売店に自社製品を置いてもらう政策を何と呼ぶか。", "choices": ["排他的チャネル政策", "開放的チャネル政策", "選択的チャネル政策", "直接的チャネル政策"], "answer": 1, "exp": "開放的チャネル政策は最寄品に適する。露出が最大化する一方、店頭管理やブランド統制は難しくなる。"},
+  {"cat": "テーマ⑧：チャネル戦略", "q": "一定の基準を満たした販売店に限定して製品を供給する政策を何と呼ぶか。", "choices": ["開放的チャネル政策", "選択的チャネル政策", "排他的チャネル政策", "無差別チャネル政策"], "answer": 1, "exp": "選択的チャネル政策は買回品に適する。販売力やサービス水準を保ちながら一定の販路を確保できる。"},
+  {"cat": "テーマ⑧：チャネル戦略", "q": "特定地域で一社の販売店にのみ販売権を与える政策を何と呼ぶか。", "choices": ["開放的チャネル政策", "排他的チャネル政策", "選択的チャネル政策", "並行チャネル政策"], "answer": 1, "exp": "排他的チャネル政策は専門品や高級ブランドに適する。ブランドイメージと価格の統制が容易になる。"},
+  {"cat": "テーマ⑧：チャネル戦略", "q": "生産から小売までの流通段階を、資本や契約によって計画的に統合・調整する仕組みを何と呼ぶか。", "choices": ["垂直的マーケティングシステム(VMS)", "チャネル・コンフリクト", "水平的統合", "オープン・チャネル"], "answer": 0, "exp": "VMSには資本による企業型、契約による契約型(フランチャイズ等)、影響力による管理型がある。"},
+  {"cat": "テーマ⑧：チャネル戦略", "q": "本部が加盟店に商標や経営ノウハウを提供し、対価を得る契約型の事業形態を何と呼ぶか。", "choices": ["ボランタリー・チェーン", "フランチャイズ・チェーン", "共同配送", "レギュラー・チェーン"], "answer": 1, "exp": "フランチャイズは契約型VMSの代表例。本部は少ない自己資本で店舗網を拡大できる。"},
+  {"cat": "テーマ⑧：チャネル戦略", "q": "チャネル構成員の間で目標や利害が対立し、摩擦が生じることを何と呼ぶか。", "choices": ["チャネル・キャプテン", "チャネル統合", "カニバリゼーション", "チャネル・コンフリクト"], "answer": 3, "exp": "自社ECと既存代理店の競合などが典型例。放置すると流通の協調が崩れるため調整が必要になる。"},
+  {"cat": "テーマ⑨：サービス・マーケティング", "q": "サービスの基本的な4特性の組み合わせとして正しいものはどれか。", "choices": ["同時性・均質性・貯蔵性・分離性", "無形性・有形性・均質性・保存性", "無形性・非分離性・変動性・消滅性", "無形性・低価格性・変動性・普遍性"], "answer": 2, "exp": "サービスは形がなく(無形性)、生産と消費が同時で(非分離性)、品質がばらつき(変動性)、在庫できない(消滅性)。"},
+  {"cat": "テーマ⑨：サービス・マーケティング", "q": "サービスの「無形性」がもたらす課題として適切なものはどれか。", "choices": ["購入前に品質を確認しにくく、顧客が不安を感じやすい", "在庫を大量に抱えてしまう", "生産と消費が切り離される", "品質が完全に均一になる"], "answer": 0, "exp": "無形性への対応として、実績提示や試用機会の提供、口コミの活用などで品質を可視化する工夫が行われる。"},
+  {"cat": "テーマ⑨：サービス・マーケティング", "q": "サービスの「消滅性(在庫できない性質)」に対応する施策として適切なものはどれか。", "choices": ["生産と消費の完全な分離", "需要の平準化を図る時間帯別料金や予約制の導入", "製品の長期保管による供給調整", "大量生産による在庫の積み増し"], "answer": 1, "exp": "在庫が持てないため、需要の山谷を価格や予約でならすことが有効。オフピーク割引などが典型例。"},
+  {"cat": "テーマ⑨：サービス・マーケティング", "q": "サービス・マーケティングの7Pにおいて、4Pに追加される3要素はどれか。", "choices": ["People・Process・Physical Evidence", "Physical Evidence・Profit・Promotion", "Process・Place・Product", "People・Price・Promotion"], "answer": 0, "exp": "人(従業員)、提供プロセス、物的証拠(施設や内装など)の3つが加わる。サービスの特性に対応した拡張。"},
+  {"cat": "テーマ⑨：サービス・マーケティング", "q": "サービス品質を評価する代表的な枠組みSERVQUALの考え方として適切なものはどれか。", "choices": ["従業員数によって品質を測定する", "提供コストの多寡だけで品質を判断する", "顧客の事前期待と実際の知覚を比較して品質を捉える", "設備投資額に比例して品質が決まる"], "answer": 2, "exp": "SERVQUALは信頼性・反応性・確実性・共感性・有形性の観点から、期待と知覚のギャップで品質を捉える。"},
+  {"cat": "テーマ⑨：サービス・マーケティング", "q": "顧客と従業員が接触し、サービス評価が決まる決定的な場面を指す言葉はどれか。", "choices": ["カスタマージャーニー", "リードタイム", "タッチポイント分析", "真実の瞬間(サービス・エンカウンター)"], "answer": 3, "exp": "短い接触の場面が顧客の評価を大きく左右する。現場従業員の対応品質が重要になる根拠とされる。"},
+  {"cat": "テーマ⑨：サービス・マーケティング", "q": "顧客満足を「事前期待」と「実際の知覚成果」の差で説明するモデルを何と呼ぶか。", "choices": ["期待不一致モデル", "AIDMAモデル", "5フォースモデル", "PPMモデル"], "answer": 0, "exp": "知覚成果が期待を上回れば満足、下回れば不満足となる。過大な事前期待は不満足を招きやすい。"},
+  {"cat": "テーマ⑨：サービス・マーケティング", "q": "顧客が特定のブランドを反復的に選び続ける状態を何と呼ぶか。", "choices": ["ブランド・スイッチング", "認知的不協和", "ブランド・ロイヤルティ", "知覚リスク"], "answer": 2, "exp": "ロイヤルティが高い顧客は価格変動に左右されにくく、口コミによる新規獲得にも寄与する。"},
+  {"cat": "テーマ⑨：サービス・マーケティング", "q": "顧客情報を蓄積・活用し、長期的な関係を築いて収益を高める仕組みを何と呼ぶか。", "choices": ["CRM(顧客関係管理)", "SCM(供給連鎖管理)", "ERP(統合業務システム)", "VMS(垂直的マーケティングシステム)"], "answer": 0, "exp": "CRMは新規獲得より既存顧客の維持・育成に重点を置く考え方。関係性マーケティングの実践手段。"},
+  {"cat": "テーマ⑨：サービス・マーケティング", "q": "一人の顧客が取引期間全体を通じて企業にもたらす利益の総額を表す指標はどれか。", "choices": ["CVR(コンバージョン率)", "ROI(投資利益率)", "LTV(顧客生涯価値)", "ARPU(利用者平均単価)"], "answer": 2, "exp": "LTVは長期的な視点で顧客価値を評価する指標。獲得コストとの比較で施策の妥当性を判断する。"},
+];
+
+allQuestions.forEach((q, i) => { q.id = i; });
+
+const SET_SIZE = 10;
+const sets = [];
+for(let i = 0; i < allQuestions.length; i += SET_SIZE){
+  sets.push(allQuestions.slice(i, i + SET_SIZE));
+}
+const setHistory = sets.map(() => null);
+
+// 苦手問題の永続管理: { [questionId]: {miss: 誤答回数, resolved: 直近で正解済みか} }
+const QUIZ_PROGRESS_KEY = 'mk3-quiz-progress-v1';
+function loadQuizProgress(){
+  try{
+    const raw = localStorage.getItem(QUIZ_PROGRESS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){
+    return {};
+  }
+}
+function saveQuizProgress(){
+  try{
+    localStorage.setItem(QUIZ_PROGRESS_KEY, JSON.stringify(quizProgress));
+  }catch(e){
+    // ブラウザのストレージが使えない環境(プレビュー等)では保存をスキップする。
+  }
+}
+let quizProgress = loadQuizProgress();
+
+function markWrong(id){
+  if(!quizProgress[id]) quizProgress[id] = {miss:0, resolved:false};
+  quizProgress[id].miss++;
+  quizProgress[id].resolved = false;
+  saveQuizProgress();
+}
+function markResolved(id){
+  if(quizProgress[id]){
+    quizProgress[id].resolved = true;
+    saveQuizProgress();
+  }
+}
+function getUnresolvedIds(){
+  return Object.keys(quizProgress)
+    .filter(k => !quizProgress[k].resolved)
+    .map(Number)
+    .sort((a,b) => a - b);
+}
+function computeWeakCategories(){
+  const counts = {};
+  getUnresolvedIds().forEach(id => {
+    const cat = allQuestions[id].cat;
+    counts[cat] = (counts[cat] || 0) + 1;
+  });
+  return Object.entries(counts).sort((a,b) => b[1] - a[1]);
+}
+
+let questions = [];
+let setIndex = 0;
+let isReviewMode = false;
+let current = 0;
+let score = 0;
+let wrongLog = [];
+let answered = false;
+let currentOrder = [];
+
+const menuArea = document.getElementById('menu-area');
+const quizArea = document.getElementById('quiz-area');
+const resultArea = document.getElementById('result-area');
+
+function renderMenu(){
+  quizArea.style.display = 'none';
+  resultArea.style.display = 'none';
+  menuArea.style.display = 'block';
+
+  const cardsHtml = sets.map((s, idx) => {
+    const start = idx * SET_SIZE + 1;
+    const end = start + s.length - 1;
+    const hist = setHistory[idx];
+    const statusHtml = hist
+      ? `<span class="set-score">前回 ${hist.score}/${hist.total}(${Math.round(hist.score/hist.total*100)}%)</span>`
+      : `<span class="set-score set-score-new">未受験</span>`;
+    return `
+      <button class="set-card" data-idx="${idx}">
+        <span class="set-range">${idx+1}. ${SET_THEMES[idx] || ('第' + (idx+1) + 'セット')}<br><span style="font-weight:400;font-size:0.78rem;color:var(--muted);">問題${start}〜${end}</span></span>
+        ${statusHtml}
+      </button>
+    `;
+  }).join('');
+
+  menuArea.innerHTML = `<div class="set-list">${cardsHtml}</div>`;
+
+  document.querySelectorAll('.set-card').forEach(btn => {
+    btn.addEventListener('click', () => startSet(parseInt(btn.dataset.idx, 10)));
+  });
+}
+
+function startSet(idx){
+  setIndex = idx;
+  isReviewMode = false;
+  questions = sets[idx];
+  current = 0;
+  score = 0;
+  wrongLog = [];
+  menuArea.style.display = 'none';
+  quizArea.style.display = 'block';
+  renderQuestion();
+}
+
+function startReview(){
+  const unresolvedIds = getUnresolvedIds();
+  if(unresolvedIds.length === 0) return;
+  isReviewMode = true;
+  questions = unresolvedIds.map(id => allQuestions[id]);
+  current = 0;
+  score = 0;
+  wrongLog = [];
+  switchToView('quiz');
+  menuArea.style.display = 'none';
+  resultArea.style.display = 'none';
+  quizArea.style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const item = questions[current];
+  answered = false;
+  const pct = Math.round((current / questions.length) * 100);
+
+  quizArea.innerHTML = `
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-label">${isReviewMode ? '復習リスト' : (SET_THEMES[setIndex] || ('第' + (setIndex+1) + 'セット'))}　${current+1} / ${questions.length}</div>
+    </div>
+    <div class="category-tag">${item.cat}</div>
+    <p class="question">${item.q}</p>
+    <div class="choices" id="choices"></div>
+    <div class="explanation" id="explanation"></div>
+    <button class="next-btn" id="next-btn" disabled>次へ</button>
+  `;
+
+  // 表示順を毎回シャッフルする。位置で答えを覚えてしまうのを防ぐため。
+  // 「いずれ〜」で始まる包括的な選択肢だけは文意が崩れるので末尾に固定する。
+  const headIdx = [], tailIdx = [];
+  item.choices.forEach((t, i) => (t.startsWith('いずれ') ? tailIdx : headIdx).push(i));
+  for(let i = headIdx.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [headIdx[i], headIdx[j]] = [headIdx[j], headIdx[i]];
+  }
+  currentOrder = headIdx.concat(tailIdx);
+
+  const choicesEl = document.getElementById('choices');
+  currentOrder.forEach((origIdx) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.textContent = item.choices[origIdx];
+    btn.addEventListener('click', () => selectAnswer(origIdx));
+    choicesEl.appendChild(btn);
+  });
+
+  document.getElementById('next-btn').addEventListener('click', nextQuestion);
+}
+
+function selectAnswer(idx){
+  if(answered) return;
+  answered = true;
+  const item = questions[current];
+  const buttons = document.querySelectorAll('#choices .choice');
+  buttons.forEach(b => b.disabled = true);
+
+  // idx は元データ上の添字。表示位置はシャッフル後の並び(currentOrder)から引く。
+  const posOf = (origIdx) => currentOrder.indexOf(origIdx);
+
+  if(idx === item.answer){
+    score++;
+    buttons[posOf(idx)].classList.add('correct');
+    markResolved(item.id);
+  } else {
+    buttons[posOf(idx)].classList.add('wrong');
+    buttons[posOf(item.answer)].classList.add('correct');
+    wrongLog.push({q:item.q, your:item.choices[idx], correct:item.choices[item.answer]});
+    markWrong(item.id);
+  }
+
+  const expEl = document.getElementById('explanation');
+  expEl.innerHTML = `<strong>解説</strong>${item.exp}`;
+  expEl.classList.add('show');
+
+  document.getElementById('next-btn').disabled = false;
+}
+
+function nextQuestion(){
+  current++;
+  if(current < questions.length){
+    renderQuestion();
+  } else {
+    renderResult();
+  }
+}
+
+function renderResult(){
+  quizArea.style.display = 'none';
+  resultArea.style.display = 'block';
+
+  const total = questions.length;
+  const pct = Math.round((score/total)*100);
+  if(!isReviewMode){
+    setHistory[setIndex] = {score, total};
+  }
+
+  const scoreLabel = isReviewMode ? '復習リストの正答数' : `${SET_THEMES[setIndex] || ('第' + (setIndex+1) + 'セット')}の正答数`;
+
+  let verdict = '';
+  if(pct >= 80) verdict = isReviewMode ? '苦手だった問題もだいぶ仕上がっとる。残りも詰めていこ。' : 'このセットは仕上がっとる。次のセットに進んでOK。';
+  else if(pct >= 70) verdict = '合格ライン(70%)は超えとる。間違えた問題だけ見直しとこ。';
+  else verdict = isReviewMode ? 'まだ本調子やない分野や。もう一周してから次行こか。' : '合格ライン(70%)には届いてへん。このセットをもう一周してから次行こか。';
+
+  let reviewHtml = '';
+  if(wrongLog.length > 0){
+    reviewHtml = '<div class="review-list">' + wrongLog.map(w => `
+      <div class="review-item">
+        <div class="rq">${w.q}</div>
+        <div class="ra-wrong">あなたの回答: ${w.your}</div>
+        <div class="ra-correct">正解: ${w.correct}</div>
+      </div>
+    `).join('') + '</div>';
+  } else {
+    reviewHtml = `<p class="all-correct">${isReviewMode ? 'このラウンドは全問正解や。' : 'このセットは全問正解や。'}</p>`;
+  }
+
+  const retryLabel = isReviewMode ? '同じ問題をもう一度' : 'このセットをもう一度';
+  const backLabel = isReviewMode ? '復習リストに戻る' : 'セット選択に戻る';
+
+  resultArea.innerHTML = `
+    <div class="result">
+      <div class="score-sub">${scoreLabel}</div>
+      <div class="score">${score} / ${total}</div>
+      <div class="score-sub">正答率 ${pct}%</div>
+      <div class="result-bar"><div class="result-bar-fill" style="width:${pct}%"></div></div>
+      <div class="verdict">${verdict}</div>
+      ${reviewHtml}
+      <button class="restart-btn" id="retry-btn">${retryLabel}</button>
+      <button class="next-btn" id="menu-btn" style="margin-top:10px;">${backLabel}</button>
+    </div>
+  `;
+
+  document.getElementById('retry-btn').addEventListener('click', () => {
+    if(isReviewMode) startReview(); else startSet(setIndex);
+  });
+  document.getElementById('menu-btn').addEventListener('click', () => {
+    if(isReviewMode) switchToView('review'); else renderMenu();
+  });
+}
+
+/* ===================== 復習リスト ===================== */
+function renderReviewView(){
+  const container = document.getElementById('review-output');
+  const unresolvedIds = getUnresolvedIds();
+
+  if(unresolvedIds.length === 0){
+    container.innerHTML = `<p class="menu-lead" style="margin-top:0;">現在、要復習の問題はない。クイズを解いて間違えた問題が出てくると、ここに自動で集まる仕組みや。</p>`;
+    return;
+  }
+
+  const weakCats = computeWeakCategories();
+  const weakHtml = weakCats.slice(0, 5).map(([cat, count]) => `<li>${cat}(${count}問)</li>`).join('');
+
+  const listHtml = unresolvedIds.map(id => {
+    const q = allQuestions[id];
+    const p = quizProgress[id];
+    return `
+      <div class="review-item">
+        <div class="rq">[${q.cat}] ${q.q}</div>
+        <div class="ra-wrong">これまでの誤答回数: ${p.miss}回</div>
+        <div class="ra-correct">正解: ${q.choices[q.answer]}</div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="week-goal" style="margin-bottom:16px;">
+      <strong>苦手分野ランキング(自動集計)</strong>
+      <ul style="margin:6px 0 0;padding-left:1.2em;">${weakHtml}</ul>
+    </div>
+    <button class="next-btn" id="start-review-btn" style="margin-bottom:22px;">苦手問題だけを解く(${unresolvedIds.length}問)</button>
+    <div class="review-list">${listHtml}</div>
+  `;
+
+  document.getElementById('start-review-btn').addEventListener('click', startReview);
+}
+
+/* ===================== スケジュールタブ内の苦手分野サマリー ===================== */
+function renderWeakSummaryInSchedule(){
+  const el = document.getElementById('weak-summary');
+  if(!el) return;
+  const weakCats = computeWeakCategories();
+
+  if(weakCats.length === 0){
+    el.innerHTML = `<div class="usage-note" style="margin-bottom:22px;"><strong>現在の苦手分野</strong>まだクイズの解答データがない。「一問一答クイズ」タブで解き進めると、間違えが多い分野がここに自動で出るようになる。</div>`;
+    return;
+  }
+
+  const top = weakCats.slice(0, 3).map(([cat, count]) => `${cat}(${count}問)`).join('　/　');
+  el.innerHTML = `<div class="week-goal" style="margin-bottom:22px;"><strong>現在の苦手分野(クイズ結果から自動集計)</strong>${top}。3週目の弱点補強日は、まずこの分野から手をつけるとよい。</div>`;
+}
+
+renderMenu();
+renderWeakSummaryInSchedule();
+
+/* ===================== 他PCとの進捗共有(クリップボード経由) ===================== */
+function showSyncStatus(msg, isError){
+  const el = document.getElementById('sync-status');
+  el.textContent = msg;
+  el.className = isError ? 'sync-status-err' : 'sync-status-ok';
+  setTimeout(() => { el.textContent = ''; el.className = ''; }, 4000);
+}
+
+document.getElementById('sync-copy-btn').addEventListener('click', async () => {
+  const payload = {
+    type: 'mk3-progress-sync',
+    exportedAt: new Date().toISOString(),
+    scheduleChecks: checksState,
+    quizProgress: quizProgress,
+    excludedDates: Array.from(excludedDates),
+    startDate: document.getElementById('start-date').value
+  };
+  const text = JSON.stringify(payload);
+  try{
+    await navigator.clipboard.writeText(text);
+    showSyncStatus('コピーした。他のPCでこのファイルを開いて「貼り付けて反映」に貼ってくれ。', false);
+  }catch(e){
+    // クリップボードAPIが使えない環境向けのフォールバック
+    window.prompt('自動コピーができひんかった。下のテキストを手動でコピーしてくれ:', text);
+  }
+});
+
+document.getElementById('sync-paste-btn').addEventListener('click', () => {
+  const text = window.prompt('コピーしてきた進捗データをここに貼り付けてくれ:');
+  if(!text) return;
+  let payload;
+  try{
+    payload = JSON.parse(text);
+  }catch(e){
+    showSyncStatus('データの形式がおかしいみたいや。コピーしたテキスト全体を貼り付けてくれ。', true);
+    return;
+  }
+  if(!payload || payload.type !== 'mk3-progress-sync'){
+    showSyncStatus('これはこのツールの進捗データやなさそうや。', true);
+    return;
+  }
+
+  // 現在の状態を上書きして保存(このPC上の未反映分は、貼り付けたデータで置き換わる)
+  checksState = payload.scheduleChecks || {};
+  quizProgress = payload.quizProgress || {};
+  excludedDates = new Set(payload.excludedDates || []);
+  saveChecks(checksState);
+  saveQuizProgress();
+  saveExcluded();
+  if(payload.startDate){
+    document.getElementById('start-date').value = payload.startDate;
+    saveStartDate(payload.startDate);
+  }
+
+  renderSchedule();
+  renderWeakSummaryInSchedule();
+  renderExcludedPanel();
+  if(document.getElementById('view-review').classList.contains('active')) renderReviewView();
+  if(document.getElementById('view-quiz').classList.contains('active')) renderMenu();
+
+  showSyncStatus('反映した。', false);
+});
+const GLOSSARY_TERMS = [
+{t:"マーケティング(AMA定義)", k:"まーけてぃんぐ", c:0, d:"顧客・依頼人・パートナー・社会全体にとって価値のあるものを創造・伝達・提供・交換するための活動、一連の制度、プロセスを指す。単なる販売活動ではない点が重要。"},
+{t:"マーケットイン", k:"まーけっといん", c:0, d:"顧客のニーズを起点にして製品を企画・開発する考え方。「売れるものを作る」という発想。"},
+{t:"プロダクトアウト", k:"ぷろだくとあうと", c:0, d:"企業の技術力や生産都合を起点にして製品を作る考え方。「作ったものを売る」という発想で、マーケットインと対をなす。"},
+{t:"生産志向", k:"せいさんしこう", c:0, d:"マーケティング・コンセプトの発展段階の第1段階。とにかく大量に安く生産すれば売れるという考え方。"},
+{t:"製品志向", k:"せいひんしこう", c:0, d:"発展段階の第2段階。高品質・高性能な製品を作れば売れるという考え方。市場ニーズより技術・品質を優先しがち。"},
+{t:"販売志向", k:"はんばいしこう", c:0, d:"発展段階の第3段階。作ったものを積極的に売り込まなければ売れないという考え方。プッシュ型の販売活動を重視する。"},
+{t:"顧客志向", k:"こきゃくしこう", c:0, d:"発展段階の第4段階。顧客ニーズの把握を起点に製品・活動を組み立てる考え方。現代マーケティングの基本姿勢。"},
+{t:"マーケティング近視眼(マーケティング・マイオピア)", k:"まーけてぃんぐきんしがん", c:0, d:"自社の事業を製品の物理的な側面だけで狭く定義し、市場や技術の変化を見誤ること。レビットが「鉄道業ではなく輸送業と捉えるべきだった」と指摘した例で知られる。"},
+{t:"コモディティ化", k:"こもでぃてぃか", c:0, d:"製品の機能や品質面での差別化が失われ、価格だけが選択基準になっていく現象。"},
+{t:"カニバリゼーション", k:"かにばりぜーしょん", c:0, d:"自社の新製品・新チャネルが既存の自社製品・チャネルの売上を奪ってしまう現象(共食い)。"},
+{t:"ニーズ", k:"にーず", c:0, d:"人間が抱く根源的な欠乏感。例えば「空腹」のような、満たされていない状態そのものを指す。"},
+{t:"ウォンツ", k:"うぉんつ", c:0, d:"ニーズを満たすための具体的な対象への欲求。「あのラーメンが食べたい」のように、文化や個人の経験によって形を変える。"},
+{t:"デマーケティング", k:"でまーけてぃんぐ", c:0, d:"需要が供給能力を超えて過剰なときに、値上げや広告抑制などによってあえて需要を抑制する活動。"},
+{t:"マス・マーケティング", k:"ますまーけてぃんぐ", c:0, d:"市場を細分化せず、単一の製品・訴求で市場全体に働きかける手法。"},
+{t:"リマーケティング", k:"りまーけてぃんぐ", c:0, d:"需要が減退した製品・サービスに対して、新たな価値提案や用途提案で需要を再喚起する活動。"},
+{t:"4P(マーケティング・ミックス)", k:"よんぴー", c:0, d:"企業が管理可能な4つの手段、Product(製品)・Price(価格)・Place(流通)・Promotion(プロモーション)の組み合わせ。市場に働きかける枠組み。"},
+{t:"4C", k:"よんしー", c:0, d:"4Pを顧客視点に置き換えた枠組み。Customer Value(顧客価値)・Cost(顧客コスト)・Convenience(利便性)・Communication(コミュニケーション)の4つで、それぞれProduct・Price・Place・Promotionに対応する。"},
+{t:"ソーシャル・マーケティング(社会志向のマーケティング)", k:"そーしゃるまーけてぃんぐ", c:0, d:"企業利益・顧客満足だけでなく、社会全体の福祉や環境への配慮も考慮するマーケティングの考え方。"},
+{t:"インターナル・マーケティング", k:"いんたーなるまーけてぃんぐ", c:0, d:"従業員を対象に、顧客志向の意識やサービス品質を高めるために行う社内向けのマーケティング活動。サービス業で特に重視される。"},
+{t:"エクスターナル・マーケティング", k:"えくすたーなるまーけてぃんぐ", c:0, d:"企業から顧客に向けた、通常の対外的なマーケティング活動を指す言葉。インターナル・マーケティングと対比して使われる。"},
+{t:"インタラクティブ・マーケティング", k:"いんたらくてぃぶまーけてぃんぐ", c:0, d:"サービス提供の現場で、従業員と顧客の間で行われる双方向のやり取りに関するマーケティング。従業員の対応品質が評価を左右する。"},
+{t:"リレーションシップ・マーケティング", k:"りれーしょんしっぷまーけてぃんぐ", c:0, d:"顧客との長期的な信頼関係の構築・維持を重視するマーケティングの考え方。新規獲得より既存顧客との関係強化に重点を置く。"},
+{t:"ダイレクト・マーケティング", k:"だいれくとまーけてぃんぐ", c:0, d:"仲介業者を介さず、企業が顧客に直接働きかけて反応を得るマーケティング手法。DM・通信販売などが該当する。"},
+{t:"ニッチ・マーケティング", k:"にっちまーけてぃんぐ", c:0, d:"大手が狙わない小規模で専門性の高い市場(ニッチ市場)に特化して展開するマーケティング手法。"},
+{t:"マクロ環境", k:"まくろかんきょう", c:1, d:"人口動態・経済・政治法律・技術・社会文化など、企業単独ではほぼ制御できない外部環境要因。"},
+{t:"ミクロ環境", k:"みくろかんきょう", c:1, d:"顧客・競合・仕入先・流通業者など、マクロ環境より企業に近く、ある程度影響を及ぼせる環境要因。"},
+{t:"タスク環境", k:"たすくかんきょう", c:1, d:"企業が事業を遂行する上で直接関わる環境。顧客・競合・取引先などミクロ環境とほぼ同義で使われる。"},
+{t:"内部環境", k:"ないぶかんきょう", c:1, d:"自社の経営資源・組織能力など、企業がコントロール可能な要因。SWOT分析の強み・弱みに対応する。"},
+{t:"PEST分析", k:"ぺすとぶんせき", c:1, d:"マクロ環境をPolitics(政治)・Economy(経済)・Society(社会)・Technology(技術)の4側面から分析する枠組み。"},
+{t:"3C分析", k:"すりーしーぶんせき", c:1, d:"Customer(市場・顧客)・Competitor(競合)・Company(自社)の3視点から事業環境を整理する枠組み。"},
+{t:"VRIO分析", k:"ぶりおぶんせき", c:1, d:"経営資源を価値(Value)・希少性(Rarity)・模倣困難性(Imitability)・組織(Organization)の観点から評価し、競争優位の源泉を探る枠組み。"},
+{t:"SWOT分析", k:"すうぉっとぶんせき", c:1, d:"内部環境の強み(Strength)・弱み(Weakness)と、外部環境の機会(Opportunity)・脅威(Threat)を整理し、掛け合わせて戦略を導く枠組み。"},
+{t:"強み(Strength)", k:"つよみ", c:1, d:"SWOT分析における内部環境要因の一つ。競合と比べた自社の優れた点・得意な点を指す。"},
+{t:"弱み(Weakness)", k:"よわみ", c:1, d:"SWOT分析における内部環境要因の一つ。競合と比べた自社の劣る点・改善が必要な点を指す。"},
+{t:"機会(Opportunity)", k:"きかい", c:1, d:"SWOT分析における外部環境要因の一つ。自社にとって追い風となる市場・環境の変化を指す。"},
+{t:"脅威(Threat)", k:"きょうい", c:1, d:"SWOT分析における外部環境要因の一つ。自社にとって逆風となる市場・環境の変化を指す。"},
+{t:"5フォース分析", k:"ふぁいぶふぉーすぶんせき", c:1, d:"ポーターが提唱した業界の競争構造分析の枠組み。新規参入の脅威・代替品の脅威・売り手の交渉力・買い手の交渉力・既存企業間の敵対関係の5つの力から業界の魅力度を分析する。"},
+{t:"バリューチェーン分析", k:"ばりゅーちぇーんぶんせき", c:1, d:"企業活動を購買物流・製造・出荷物流・販売マーケティング・サービスなどの主活動と、人事・技術開発などの支援活動に分け、どの工程で価値(付加価値)が生まれているかを分析する枠組み。"},
+{t:"コア・コンピタンス", k:"こあこんぴたんす", c:1, d:"競合が容易に模倣できない、企業の競争優位の源泉となる中核的な強み・能力。独自の技術力やノウハウの蓄積などが該当する。"},
+{t:"シナジー", k:"しなじー", c:1, d:"複数の事業・資源を組み合わせることで、単独で行うよりも大きな効果(相乗効果)が生まれること。"},
+{t:"アンゾフの成長マトリクス", k:"あんぞふのせいちょうまとりくす", c:1, d:"製品(既存/新規)と市場(既存/新規)の組み合わせから、企業の成長戦略を市場浸透・新製品開発・新市場開拓・多角化の4つに分類する枠組み。"},
+{t:"市場浸透戦略", k:"しじょうしんとうせんりゃく", c:1, d:"既存製品を既存市場にさらに売り込む戦略。使用頻度の向上や競合からのシェア奪取などで成長を図る。"},
+{t:"新市場開拓戦略", k:"しんしじょうかいたくせんりゃく", c:1, d:"既存製品を新しい市場(地域・顧客層)に展開して成長を図る戦略。"},
+{t:"新製品開発戦略", k:"しんせいひんかいはつせんりゃく", c:1, d:"既存市場に対して新しい製品を投入して成長を図る戦略。"},
+{t:"多角化戦略", k:"たかくかせんりゃく", c:1, d:"新製品を新市場に展開する戦略。4つの成長戦略の中でもっともリスクが高いとされる。"},
+{t:"PPM(プロダクト・ポートフォリオ・マネジメント/BCGマトリクス)", k:"ぴーぴーえむ", c:1, d:"市場成長率と相対的市場シェアの2軸で事業を花形・金のなる木・問題児・負け犬の4象限に分類し、資源配分を検討する枠組み。BCGマトリクスとも呼ばれる。"},
+{t:"花形(スター)", k:"はながた", c:1, d:"PPMにおいて市場成長率・市場シェアがともに高い事業。資金流入は大きいが成長投資も必要になる。"},
+{t:"金のなる木(キャッシュカウ)", k:"かねのなるき", c:1, d:"PPMにおいて市場成長率は低いが市場シェアが高い事業。投資負担が小さく、安定的に資金を生み出す。"},
+{t:"問題児(クエスチョンマーク)", k:"もんだいじ", c:1, d:"PPMにおいて市場成長率は高いが市場シェアが低い事業。花形に育てるか撤退するかの判断が必要になる。"},
+{t:"負け犬(ドッグ)", k:"まけいぬ", c:1, d:"PPMにおいて市場成長率・市場シェアがともに低い事業。撤退・縮小が検討される。"},
+{t:"ポーターの3つの基本戦略", k:"ぽーたーのみっつのきほんせんりゃく", c:1, d:"コストリーダーシップ戦略・差別化戦略・集中(フォーカス)戦略の3つ。競争優位をどう築くかの型を示す枠組み。"},
+{t:"コストリーダーシップ戦略", k:"こすとりーだーしっぷせんりゃく", c:1, d:"業界内で最も低いコスト構造を実現し、価格競争力で優位に立つ戦略。"},
+{t:"差別化戦略", k:"さべつかせんりゃく", c:1, d:"品質・デザイン・ブランドなど、顧客にとって価値のある独自性で競合と差別化する戦略。"},
+{t:"集中戦略(フォーカス戦略)", k:"しゅうちゅうせんりゃく", c:1, d:"特定のセグメントに経営資源を集中させ、その市場でコストか差別化のいずれかで優位を築く戦略。"},
+{t:"購買意思決定プロセス", k:"こうばいいしけっていぷろせす", c:3, d:"問題認識→情報探索→代替品評価→購買決定→購買後行動という5段階からなる、消費者が購買に至るまでの一般的なモデル。"},
+{t:"問題認識", k:"もんだいにんしき", c:3, d:"購買意思決定プロセスの第1段階。理想の状態と現実の状態にギャップを感じることで生じる。内部刺激(空腹など)や外部刺激(広告など)が引き金になる。"},
+{t:"情報探索", k:"じょうほうたんさく", c:3, d:"問題認識の後、選択肢に関する情報を集める段階。記憶を使う内部探索と、広告・口コミなどを使う外部探索がある。"},
+{t:"内部探索", k:"ないぶたんさく", c:3, d:"消費者が自分の記憶や過去の経験から情報を引き出すこと。それで足りない場合に外部探索へ移る。"},
+{t:"外部探索", k:"がいぶたんさく", c:3, d:"広告・口コミ・店頭など、自分の記憶以外から情報を集めること。内部探索だけで判断が難しい場合に行われる。"},
+{t:"代替品評価", k:"だいたいひんひょうか", c:3, d:"収集した情報をもとに、複数の選択肢(ブランド)を比較検討する段階。"},
+{t:"購買後行動", k:"こうばいごこうどう", c:3, d:"購入後に満足・不満足を評価する段階。認知的不協和の解消や、再購買・口コミ発信につながる。"},
+{t:"知覚リスク", k:"ちかくりすく", c:3, d:"購買によって生じるかもしれない、経済的・機能的・心理的な損失への不安感。"},
+{t:"選択的注意", k:"せんたくてきちゅうい", c:3, d:"消費者が数多くの情報の中から、自分の関心に合致するものだけに注意を向ける傾向。"},
+{t:"選択的保持", k:"せんたくてきほじ", c:3, d:"消費者が接した情報のうち、自分の考えや態度に合致するものだけを記憶に残しやすい傾向。"},
+{t:"想起集合(考慮集合)", k:"そうきしゅうごう", c:3, d:"消費者が購買の候補として実際に思い浮かべ、比較検討する少数のブランド群。ここに入らないブランドは検討対象にすらならない。"},
+{t:"拒否集合", k:"きょひしゅうごう", c:3, d:"消費者が検討対象から明確に除外しているブランド群。過去の悪印象などが理由になる。"},
+{t:"認知的不協和", k:"にんちてきふきょうわ", c:3, d:"購入後に「本当にこれで良かったのか」と感じる心理的な不安や葛藤。企業はアフターフォローや情報提供で低減を図る。"},
+{t:"関与", k:"かんよ", c:3, d:"対象への重要性の認識や思い入れの強さ。高関与では情報探索や比較検討が入念になり、低関与では簡便に済まされやすい。"},
+{t:"知覚品質", k:"ちかくひんしつ", c:3, d:"消費者が主観的に感じ取る製品・サービスの品質。客観的な品質とは必ずしも一致しない。"},
+{t:"習慣的購買", k:"しゅうかんてきこうばい", c:3, d:"深く考えずに、いつも通りの銘柄を反復的に購入する行動パターン。低関与の購買でよく見られる。"},
+{t:"衝動購買", k:"しょうどうこうばい", c:3, d:"事前の計画なしに、その場の刺激によって突発的に行われる購買行動。"},
+{t:"AIDMA(アイドマ)", k:"あいどま", c:3, d:"Attention(注意)→Interest(関心)→Desire(欲求)→Memory(記憶)→Action(行動)という、マスメディア時代の購買心理プロセスを表す古典的モデル。"},
+{t:"AISAS(アイサス)", k:"あいさす", c:3, d:"Attention→Interest→Search(検索)→Action→Share(共有)という、インターネット時代の購買行動モデル。AIDMAに検索と共有が加わっている点が特徴。"},
+{t:"準拠集団", k:"じゅんきょしゅうだん", c:3, d:"個人が判断や行動の基準として参照する集団。家族・友人・同僚・職場・憧れの集団などが含まれ、価値観や購買行動に影響を与える。"},
+{t:"オピニオンリーダー", k:"おぴにおんりーだー", c:3, d:"特定分野の情報や知識に詳しく、周囲の意見や購買行動に強い影響を与える人物。"},
+{t:"マズローの欲求階層説", k:"まずろーのよっきゅうかいそうせつ", c:3, d:"人間の欲求を生理的欲求→安全の欲求→所属と愛の欲求→承認欲求→自己実現欲求の5段階で捉える理論。低次の欲求が満たされると高次の欲求が現れるとされる。"},
+{t:"生理的欲求", k:"せいりてきよっきゅう", c:3, d:"マズローの欲求階層説で最も低次(基礎的)に位置づけられる欲求。食欲・睡眠など生存に関わる欲求。"},
+{t:"安全の欲求", k:"あんぜんのよっきゅう", c:3, d:"マズローの欲求階層説の第2段階。身の安全や経済的な安定を求める欲求。"},
+{t:"所属と愛の欲求", k:"しょぞくとあいのよっきゅう", c:3, d:"マズローの欲求階層説の第3段階。集団への所属や、他者からの愛情を求める欲求。"},
+{t:"承認欲求", k:"しょうにんよっきゅう", c:3, d:"マズローの欲求階層説の第4段階。他者から尊敬・評価されたいと感じる欲求。"},
+{t:"自己実現の欲求", k:"じこじつげんのよっきゅう", c:3, d:"マズローの欲求階層説において最も高次に位置づけられる欲求。自分の可能性を最大限発揮したいという欲求。"},
+{t:"セグメンテーション(市場細分化)", k:"せぐめんてーしょん", c:1, d:"異質な市場を、似たニーズを持つ同質性の高い小集団(セグメント)に分割すること。マーケティング対応の精度を高める第一歩。"},
+{t:"デモグラフィック変数(人口動態的変数)", k:"でもぐらふぃっくへんすう", c:1, d:"年齢・性別・所得・職業・家族構成などによる市場細分化の基準。測定が容易で入手しやすく、最も広く使われる。"},
+{t:"サイコグラフィック変数(心理的変数)", k:"さいこぐらふぃっくへんすう", c:1, d:"ライフスタイル・価値観・性格などによる市場細分化の基準。同じ年齢層でも異なる嗜好を捉えられる。"},
+{t:"行動的変数", k:"こうどうてきへんすう", c:1, d:"使用頻度・ブランドロイヤルティ・購買機会など、実際の購買・使用行動に基づく市場細分化の基準。"},
+{t:"地理的変数", k:"ちりてきへんすう", c:1, d:"国・地域・気候・人口密度などによる市場細分化の基準。"},
+{t:"有効なセグメントの条件", k:"ゆうこうなせぐめんとのじょうけん", c:1, d:"測定可能性・到達可能性・十分な市場規模と収益性・実行可能性などが挙げられる。競合の不在は条件ではない。"},
+{t:"ターゲティング", k:"たーげてぃんぐ", c:1, d:"細分化した市場の中から、自社が経営資源を集中させる市場を選ぶプロセス。市場の魅力度と自社の適合性の両面から判断する。"},
+{t:"無差別型マーケティング", k:"むさべつがたまーけてぃんぐ", c:1, d:"市場全体に対して単一の製品・単一のマーケティングミックスで対応するターゲティングの方法。市場の共通部分に訴求する。"},
+{t:"差別型マーケティング", k:"さべつがたまーけてぃんぐ", c:1, d:"複数のセグメントそれぞれに異なる製品・マーケティングミックスで対応するターゲティングの方法。"},
+{t:"集中型マーケティング", k:"しゅうちゅうがたまーけてぃんぐ", c:1, d:"限られた経営資源を特定の狭いセグメントに集中させるターゲティングの方法。資源の限られた中小企業やニッチ志向の企業に向く。"},
+{t:"ポジショニング", k:"ぽじしょにんぐ", c:1, d:"自社製品が競合と比べて顧客の心の中でどの位置を占めるかを設計する活動。顧客にとって意味のある差異を明確にすることが要点。"},
+{t:"ポジショニングマップ(知覚マップ)", k:"ぽじしょにんぐまっぷ", c:1, d:"顧客が重視する2つの属性を縦軸・横軸にとり、自社と競合の位置関係を図示したもの。競合との相対位置や空白領域(ホワイトスペース)の発見に使われる。"},
+{t:"マーチャンダイジング", k:"まーちゃんだいじんぐ", c:1, d:"適切な商品を、適切な場所・時期・価格・数量で提供するための、主に小売の商品化計画。"},
+{t:"カスタマージャーニーマップ", k:"かすたまーじゃーにーまっぷ", c:1, d:"顧客が製品・サービスを認知してから購入・利用に至るまでの一連の体験を時系列で可視化した図。"},
+{t:"製品の3層構造", k:"せいひんのさんそうこうぞう", c:4, d:"製品を中核(コア=顧客が得る本質的な便益)・実体(形態=品質やデザインなど具体的な形)・付随機能(拡大=保証・配送・アフターサービスなど)の3層で捉える考え方。"},
+{t:"最寄品", k:"もよりひん", c:4, d:"購入頻度が高く、比較検討にあまり労力をかけない消費財。日用品などが該当し、幅広い店舗で扱う開放的チャネル政策が適する。"},
+{t:"買回品", k:"かいまわりひん", c:4, d:"複数の店舗を回って比較検討したうえで購入する消費財。衣料品・家電などが該当し、選択的チャネル政策が適する。"},
+{t:"専門品", k:"せんもんひん", c:4, d:"消費者が特定ブランドに強いこだわりを持ち、入手に特別な努力を払う消費財。高級車やブランド品などが該当し、指名購買されるため限定的なチャネルでも成立する。"},
+{t:"非探索品", k:"ひたんさくひん", c:4, d:"消費者が普段は関心を持たず自ら探そうとしない消費財。生命保険や墓石などが該当し、人的販売や広告による積極的な働きかけが必要になる。"},
+{t:"製品ミックスの幅", k:"せいひんみっくすのはば", c:4, d:"企業が扱う製品ライン(カテゴリー)の数を指す概念。"},
+{t:"製品ミックスの深さ", k:"せいひんみっくすのふかさ", c:4, d:"各製品ライン内に含まれるアイテム(品目・バリエーション)の数を指す概念。"},
+{t:"プロダクトライフサイクル(PLC)", k:"ぷろだくとらいふさいくる", c:4, d:"製品が市場に投入されてから撤退するまでを、導入期→成長期→成熟期→衰退期の4段階で捉えるモデル。各段階で適したマーケティング施策が変わる。"},
+{t:"導入期", k:"どうにゅうき", c:4, d:"PLCの第1段階。認知度が低く販促費が先行するため、売上は小さく利益が出にくい。まず知ってもらうことが課題。"},
+{t:"成長期", k:"せいちょうき", c:4, d:"PLCの第2段階。市場に受け入れられ売上・利益が急拡大する一方、競合の参入も増える。"},
+{t:"成熟期", k:"せいじゅくき", c:4, d:"PLCの第3段階。市場成長が鈍化し、需要が一巡して既存需要の取り合いになる。ブランド強化やモデルチェンジで対応する。"},
+{t:"衰退期", k:"すいたいき", c:4, d:"PLCの第4段階。市場が縮小し、撤退や製品の絞り込みの判断が必要になる。"},
+{t:"イノベーター理論(普及理論)", k:"いのべーたーりろん", c:4, d:"新製品の採用者を採用の早い順に、イノベーター→アーリーアダプター→アーリーマジョリティ→レイトマジョリティ→ラガードの5つに分類する理論。"},
+{t:"イノベーター(革新者)", k:"いのべーたー", c:4, d:"新製品を最も早期に採用する層。冒険心が強く、新しいもの自体に価値を感じる。"},
+{t:"アーリーアダプター(初期採用者)", k:"あーりーあだぷたー", c:4, d:"イノベーターに次いで早期に採用する層。オピニオンリーダー的な存在になりやすく、後続層への普及に影響を与える。"},
+{t:"アーリーマジョリティ(前期追随者)", k:"あーりーまじょりてぃ", c:4, d:"平均よりやや早く新製品を採用する層。慎重派だが流行には比較的早く乗る。"},
+{t:"レイトマジョリティ(後期追随者)", k:"れいとまじょりてぃ", c:4, d:"平均よりやや遅れて新製品を採用する層。周囲の大多数が採用してから追随する懐疑的な層。"},
+{t:"ラガード(遅滞者)", k:"らがーど", c:4, d:"最も採用が遅い層。伝統や慣習を重視し、新しいものへの抵抗感が強い。"},
+{t:"ブランド・エクイティ", k:"ぶらんどえくいてぃ", c:4, d:"ブランドが顧客の認知やロイヤルティによってもたらす資産的な価値。ブランド認知・ブランド連想・知覚品質・ロイヤルティなどから構成される。"},
+{t:"ブランド・エクステンション", k:"ぶらんどえくすてんしょん", c:4, d:"既存の知名度あるブランド名を使って、新しいカテゴリーの製品を展開すること。"},
+{t:"ブランド・スイッチング", k:"ぶらんどすいっちんぐ", c:4, d:"消費者がそれまで使っていたブランドから別のブランドへ乗り換えること。"},
+{t:"コ・ブランディング", k:"こぶらんでぃんぐ", c:4, d:"複数の企業・ブランドが共同で1つの製品・サービスを展開すること。"},
+{t:"コスト志向の価格設定", k:"こすとしこうのかかくせってい", c:5, d:"製造・仕入にかかった原価を基準に価格を決める考え方。コストプラス法などが代表例。"},
+{t:"需要志向の価格設定", k:"じゅようしこうのかかくせってい", c:5, d:"顧客が感じる価値(知覚価値)を基準に価格を決める考え方。"},
+{t:"競争志向の価格設定", k:"きょうそうしこうのかかくせってい", c:5, d:"競合の価格水準を基準に自社価格を決める考え方。実勢価格法などが代表例。"},
+{t:"コストプラス法", k:"こすとぷらすほう", c:5, d:"原価に一定の利益率を上乗せして価格を決める方法。計算が容易な反面、顧客の知覚価値や競合水準を反映しにくい。"},
+{t:"実勢価格法", k:"じっせいかかくほう", c:5, d:"業界内の一般的な価格水準(相場)に合わせて自社価格を設定する方法。"},
+{t:"知覚価値価格設定法", k:"ちかくかちかかくせっていほう", c:5, d:"顧客がその製品・サービスに感じる価値を基準に価格を設定する方法。"},
+{t:"上澄み吸収価格戦略(スキミング・プライシング)", k:"うわずみきゅうしゅうかかくせんりゃく", c:5, d:"新製品の導入時に高い価格を設定し、価格に敏感でない層から早期に利益を回収する戦略。技術優位や独自性がある場合に有効で、段階的に価格を下げて需要層を広げる。"},
+{t:"市場浸透価格戦略(ペネトレーション・プライシング)", k:"しじょうしんとうかかくせんりゃく", c:5, d:"新製品を意図的に低価格で投入し、早期に市場シェアを確保する戦略。規模の経済が働く市場や価格弾力性の高い市場で有効。"},
+{t:"端数価格", k:"はすうかかく", c:5, d:"「1,980円」のように価格の末尾を調整し、心理的な割安感を与える手法。切りのよい価格より安く感じられる効果を狙う。"},
+{t:"威光価格(プレステージ価格)", k:"いこうかかく", c:5, d:"あえて高い価格を設定し、高品質・高級というイメージを訴求する手法。宝飾品や高級ブランドで典型的に見られる。"},
+{t:"キャプティブ価格(虜価格)", k:"きゃぷてぃぶかかく", c:5, d:"本体を安く販売し、消耗品や付属品で継続的に利益を得る価格設定。プリンター本体とインクの関係が典型例。"},
+{t:"ロスリーダー(おとり価格)", k:"ろすりーだー", c:5, d:"特定商品を著しく安く販売して集客し、他商品の購買につなげる手法。特売品自体は利益が薄いか赤字でも、店全体の売上増を狙う。"},
+{t:"慣習価格", k:"かんしゅうかかく", c:5, d:"缶飲料など、長期間にわたって消費者に定着している一定の価格水準。値上げがしにくいという特徴がある。"},
+{t:"抱き合わせ価格", k:"だきあわせかかく", c:5, d:"複数の製品・サービスをセットにして、単品合計より割安な価格を設定する手法。"},
+{t:"価格弾力性", k:"かかくだんりょくせい", c:5, d:"価格の変化に対して需要量がどれだけ大きく変動するかを示す概念。弾力性が高い場合は値下げによる数量増が期待でき、低い場合は値上げでも需要が大きく落ちにくい。"},
+{t:"価格差別(差別価格)", k:"かかくさべつ", c:5, d:"同じ製品について、顧客層や時間帯・購入場所によって異なる価格を設定すること。早割や学生割引、時間帯別料金などが例で、支払意思額の違いに応じて収益を最大化する狙いがある。"},
+{t:"流通チャネル(マーケティング・チャネル)", k:"りゅうつうちゃねる", c:7, d:"生産者から最終消費者に製品が届くまでの経路や、それを構成する卸売業者・小売業者などの組織群。所有権の移転経路を指す。"},
+{t:"サプライチェーン", k:"さぷらいちぇーん", c:7, d:"原材料の調達から製造・物流・販売に至る一連のモノの供給網全体。流通チャネルより上流の調達・生産工程も含む広い概念。"},
+{t:"直接流通", k:"ちょくせつりゅうつう", c:7, d:"生産者が卸売業者や小売業者を介さず、自ら消費者に販売する形態。産地直送やメーカー直営ECなどが例で、中間マージンを抑えられる反面、自社の販売機能が必要になる。"},
+{t:"間接流通", k:"かんせつりゅうつう", c:7, d:"卸売業者・小売業者などの仲介業者を介して製品を消費者に届ける形態。"},
+{t:"取引総数最小化の原理", k:"とりひきそうすうさいしょうかのげんり", c:7, d:"仲介業者が入ることで、生産者と消費者の個別取引の組み合わせ数が減り、社会全体の流通が効率化するという考え方。"},
+{t:"卸売業の機能", k:"おろしうりぎょうのきのう", c:7, d:"品揃え形成(まとめて仕入れて小分けする)、在庫保有による需給の時間的調整、情報伝達、金融機能などが挙げられる。最終消費者への直接対応は主に小売業が担う。"},
+{t:"開放的チャネル政策", k:"かいほうてきちゃねるせいさく", c:7, d:"できるだけ多くの販売店に自社製品を置いてもらう政策。最寄品に適し、露出は最大化するが店頭管理やブランド統制は難しくなる。"},
+{t:"選択的チャネル政策", k:"せんたくてきちゃねるせいさく", c:7, d:"一定の基準を満たした販売店に限定して製品を供給する政策。買回品に適し、販売力やサービス水準を保ちながら一定の販路を確保できる。"},
+{t:"排他的チャネル政策", k:"はいたてきちゃねるせいさく", c:7, d:"特定地域で一社の販売店にのみ販売権を与える政策。専門品や高級ブランドに適し、ブランドイメージと価格の統制が容易になる。"},
+{t:"垂直的マーケティングシステム(VMS)", k:"すいちょくてきまーけてぃんぐしすてむ", c:7, d:"生産から小売までの流通段階を、資本や契約によって計画的に統合・調整する仕組み。資本による企業型、契約によるフランチャイズ等の契約型、影響力による管理型がある。"},
+{t:"フランチャイズ・チェーン", k:"ふらんちゃいずちぇーん", c:7, d:"本部が加盟店に商標や経営ノウハウを提供し、対価(ロイヤルティ)を得る契約型VMSの代表例。本部は少ない自己資本で店舗網を拡大できる。"},
+{t:"ボランタリー・チェーン", k:"ぼらんたりーちぇーん", c:7, d:"独立した中小小売業者どうしが、仕入や販促などで協力し合う任意連鎖組織。"},
+{t:"チャネル・コンフリクト", k:"ちゃねるこんふりくと", c:7, d:"チャネル構成員の間で目標や利害が対立し、摩擦が生じること。自社ECと既存代理店の競合などが典型例。"},
+{t:"チャネル・キャプテン", k:"ちゃねるきゃぷてん", c:7, d:"流通チャネルの中で主導権を持ち、他の構成員の活動を調整・統制する立場の企業。"},
+{t:"プロモーション・ミックス", k:"ぷろもーしょんみっくす", c:6, d:"広告・人的販売・セールスプロモーション(SP)・PR(パブリシティ)の4つの手段を組み合わせて顧客に働きかけること。"},
+{t:"広告", k:"こうこく", c:6, d:"費用を払って媒体枠を購入し、明示された広告主が発信する非人的なコミュニケーション。同時に多数へ到達できる点が強み。"},
+{t:"パブリシティ", k:"ぱぶりしてぃ", c:6, d:"企業が費用を負担せず、報道機関に取り上げられることで情報が伝わる活動。第三者を介するため信頼性が高い一方、内容や掲載可否を企業が統制できない。"},
+{t:"人的販売", k:"じんてきはんばい", c:6, d:"販売員が対面で行う説得的なコミュニケーション。顧客の反応を見ながら双方向でやり取りでき説得力が高い一方、一人当たりのコストが高く広範な到達には向かない。"},
+{t:"セールスプロモーション(SP/販売促進)", k:"せーるすぷろもーしょん", c:6, d:"サンプル配布・クーポン・増量パックなど、短期的な購買刺激を狙う施策の総称。即効性が高い反面、多用するとブランド価値の低下や値引き依存を招く恐れがある。"},
+{t:"プッシュ戦略", k:"ぷっしゅせんりゃく", c:6, d:"流通業者への働きかけ(リベートや営業活動など)を中心に、製品を市場に押し出していく戦略。"},
+{t:"プル戦略", k:"ぷるせんりゃく", c:6, d:"広告などで消費者に直接働きかけて指名購買を促し、流通業者を引き寄せる戦略。"},
+{t:"ペイドメディア", k:"ぺいどめでぃあ", c:6, d:"費用を払って利用する広告媒体。テレビCM・ネット広告などが該当する。"},
+{t:"オウンドメディア", k:"おうんどめでぃあ", c:6, d:"自社が保有し発信内容を統制できる媒体。自社サイトや公式SNSアカウントなどが該当する。"},
+{t:"アーンドメディア", k:"あーんどめでぃあ", c:6, d:"口コミやSNSでの言及など、第三者の発信によって獲得される露出。信頼性が高いが企業側の統制は及ばず、ネガティブな評判も拡散し得る。"},
+{t:"IMC(統合型マーケティング・コミュニケーション)", k:"あいえむしー", c:6, d:"広告・SP・PR・人的販売など複数のコミュニケーション手段を一貫したメッセージで統合的に管理する考え方。ブランドの一貫性と相乗効果を高める。"},
+{t:"リーチ", k:"りーち", c:6, d:"広告が一定期間に到達した人数・世帯の割合を示す指標。"},
+{t:"フリークエンシー", k:"ふりーくえんしー", c:6, d:"広告が対象者一人当たりに接触した平均回数を示す指標。リーチとのバランスで媒体計画を組む。"},
+{t:"サービスの4特性", k:"さーびすのよんとくせい", c:8, d:"無形性・非分離性・変動性・消滅性の4つ。形がなく、生産と消費が同時に行われ、品質がばらつき、在庫できないというサービス固有の性質。"},
+{t:"無形性", k:"むけいせい", c:8, d:"サービスには形がなく、購入前に品質を確認しにくいという特性。実績提示や試用機会の提供、口コミの活用などで品質を可視化する工夫が行われる。"},
+{t:"非分離性(同時性)", k:"ひぶんりせい", c:8, d:"サービスの生産と消費が同時に行われるという特性。生産者と消費者が同じ場に居合わせる必要がある。"},
+{t:"変動性", k:"へんどうせい", c:8, d:"サービスの提供者・状況によって品質にばらつきが生じやすいという特性。"},
+{t:"消滅性", k:"しょうめつせい", c:8, d:"サービスは在庫できず、その場で消えてしまうという特性。需要の山谷を時間帯別料金や予約制でならすことが有効とされる。"},
+{t:"サービス・マーケティングの7P", k:"さーびすまーけてぃんぐのななぴー", c:8, d:"4Pに、People(人・従業員)、Process(提供プロセス)、Physical Evidence(物的証拠=施設や内装など)の3要素を加えた枠組み。サービスの特性に対応するための拡張。"},
+{t:"SERVQUAL(サーブクオル)", k:"さーぶくおる", c:8, d:"サービス品質を評価する代表的な枠組み。信頼性・反応性・確実性・共感性・有形性の観点から、顧客の事前期待と実際の知覚のギャップで品質を捉える。"},
+{t:"真実の瞬間(サービス・エンカウンター)", k:"しんじつのしゅんかん", c:8, d:"顧客と従業員が接触し、サービス評価が決まる決定的な場面。短い接触の場面が顧客の評価を大きく左右するとされる。"},
+{t:"期待不一致モデル", k:"きたいふいっちもでる", c:8, d:"顧客満足を「事前期待」と「実際の知覚成果」の差で説明するモデル。知覚成果が期待を上回れば満足、下回れば不満足となる。"},
+{t:"ブランド・ロイヤルティ", k:"ぶらんどろいやるてぃ", c:8, d:"顧客が特定のブランドを反復的に選び続ける状態。価格変動に左右されにくく、口コミによる新規獲得にも寄与する。"},
+{t:"CRM(顧客関係管理)", k:"しーあーるえむ", c:8, d:"顧客情報を蓄積・活用し、長期的な関係を築いて収益を高める仕組み。新規獲得より既存顧客の維持・育成に重点を置く。"},
+{t:"LTV(顧客生涯価値)", k:"えるてぃーぶい", c:8, d:"一人の顧客が取引期間全体を通じて企業にもたらす利益の総額を表す指標。獲得コストとの比較で施策の妥当性を判断する。"},
+{t:"マーケティング・リサーチの手順", k:"まーけてぃんぐりさーちのてじゅん", c:2, d:"課題の設定→調査計画の立案→データ収集→分析→報告という一般的な順序で進める。課題設定が曖昧なままの調査は結論に結びつきにくい。"},
+{t:"一次データ", k:"いちじでーた", c:2, d:"調査目的のために新たに収集するデータ。目的に合致するが、費用と時間がかかる。"},
+{t:"二次データ", k:"にじでーた", c:2, d:"既存の官公庁統計・業界レポート・社内資料など、すでに存在するデータ。比較的低コスト・短時間で入手できるが、目的との不一致や情報の古さに注意が必要。まず二次データ、足りなければ一次データを集めるのが基本。"},
+{t:"定量調査", k:"ていりょうちょうさ", c:2, d:"数値化して統計的に分析することを主目的とする調査手法。傾向や割合の把握に向く。"},
+{t:"定性調査", k:"ていせいちょうさ", c:2, d:"消費者の理由や動機を深掘りすることを主目的とする調査手法。フォーカスグループインタビューやデプスインタビューなどが該当する。"},
+{t:"フォーカスグループインタビュー(FGI)", k:"えふじーあい", c:2, d:"少人数を集めて座談会形式で自由に意見を引き出す定性調査の手法。参加者どうしの相互作用から発想が広がる利点がある一方、結果の一般化には慎重さが必要。"},
+{t:"標本調査(サンプリング)", k:"ひょうほんちょうさ", c:2, d:"母集団全体ではなく、その一部(標本)を抽出して行う調査。コストと時間を抑えられるが、標本に偏りがあると母集団の推定が歪む。"},
+{t:"全数調査(センサス)", k:"ぜんすうちょうさ", c:2, d:"母集団に含まれる対象すべてを調査する方法。精度は高いがコストと時間がかかる。"},
+{t:"観察法", k:"かんさつほう", c:2, d:"消費者の行動を実際の場面で観察し、言葉にされない実態を把握する調査手法。本人が自覚していない行動を捉えられるが、動機や理由そのものは分かりにくい。"},
+{t:"実験法", k:"じっけんほう", c:2, d:"条件を人為的に統制したうえで、ある要因が結果に与える影響を検証する調査手法。ウェブ上のA/Bテストもこの考え方に近い。"},
+{t:"質問法", k:"しつもんほう", c:2, d:"アンケート用紙や面接などを通じて回答者に直接尋ね、情報を収集する調査手法。郵送・訪問・電話・インターネットなど多様な実施方法がある、最も広く使われる収集手法。"},
+{t:"デルファイ法", k:"でるふぁいほう", c:2, d:"複数の専門家に匿名でアンケートを繰り返し実施し、意見を集約していく予測・調査手法。"},
+{t:"マーケティング・リサーチの役割", k:"まーけてぃんぐりさーちのやくわり", c:2, d:"経営者の勘や経験だけに頼らず、意思決定の不確実性を減らし、客観的な情報で判断を支えること。"},
+];GLOSSARY_TERMS.forEach((term, i) => { term.id = i; });
+
+let glossInitDone = false;
+let glossActiveCat = null; // null = すべて
+let glossQuery = '';
+
+function glossKanaRow(ch){
+  const rows = {
+    'あ':'あいうえお',
+    'か':'かきくけこがぎぐげご',
+    'さ':'さしすせそざじずぜぞ',
+    'た':'たちつてとだぢづでど',
+    'な':'なにぬねの',
+    'は':'はひふへほばびぶべぼぱぴぷぺぽ',
+    'ま':'まみむめも',
+    'や':'やゆよ',
+    'ら':'らりるれろ',
+    'わ':'わをん'
+  };
+  for(const key in rows){ if(rows[key].indexOf(ch) !== -1) return key; }
+  return null;
+}
+function glossEscReg(s){ return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'); }
+function glossHighlight(text, query){
+  if(!query) return text;
+  try{
+    const re = new RegExp('(' + glossEscReg(query) + ')', 'gi');
+    return text.replace(re, '<mark class="gloss-hit">$1</mark>');
+  }catch(e){ return text; }
+}
+
+function initGlossaryOnce(){
+  if(glossInitDone) return;
+  glossInitDone = true;
+
+  // カテゴリーチップ
+  const chipWrap = document.getElementById('gloss-cat-chips');
+  const allChip = document.createElement('button');
+  allChip.className = 'gloss-chip active';
+  allChip.textContent = 'すべて';
+  allChip.addEventListener('click', () => {
+    glossActiveCat = null;
+    chipWrap.querySelectorAll('.gloss-chip').forEach(c => c.classList.remove('active'));
+    allChip.classList.add('active');
+    renderGlossaryList();
+  });
+  chipWrap.appendChild(allChip);
+
+  SET_THEMES.forEach((name, idx) => {
+    const chip = document.createElement('button');
+    chip.className = 'gloss-chip';
+    chip.textContent = name;
+    chip.addEventListener('click', () => {
+      glossActiveCat = idx;
+      chipWrap.querySelectorAll('.gloss-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      renderGlossaryList();
+    });
+    chipWrap.appendChild(chip);
+  });
+
+  // 索引バー(50音)
+  const idxWrap = document.getElementById('gloss-index');
+  ['あ','か','さ','た','な','は','ま','や','ら','わ'].forEach(row => {
+    const btn = document.createElement('button');
+    btn.className = 'gloss-index-btn';
+    btn.textContent = row;
+    btn.addEventListener('click', () => {
+      const target = document.querySelector('#gloss-list [data-row="' + row + '"]:not([data-hidden="1"])');
+      if(target){ target.scrollIntoView({behavior:'smooth', block:'start'}); }
+    });
+    idxWrap.appendChild(btn);
+  });
+
+  // 検索ボックス
+  const searchInput = document.getElementById('gloss-search');
+  let debounceTimer = null;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      glossQuery = searchInput.value.trim();
+      renderGlossaryList();
+    }, 150);
+  });
+
+  renderGlossaryList();
+}
+
+function renderGlossaryList(){
+  const listEl = document.getElementById('gloss-list');
+  const countEl = document.getElementById('gloss-count');
+  const q = glossQuery;
+
+  const filtered = GLOSSARY_TERMS.filter(term => {
+    if(glossActiveCat !== null && term.c !== glossActiveCat) return false;
+    if(!q) return true;
+    const hay = term.t + ' ' + term.d + ' ' + term.k;
+    return hay.toLowerCase().indexOf(q.toLowerCase()) !== -1;
+  });
+
+  countEl.textContent = filtered.length + ' / ' + GLOSSARY_TERMS.length + '件';
+
+  if(filtered.length === 0){
+    listEl.innerHTML = '<div class="gloss-empty">該当する用語が見つからんかった。検索語を変えるか、カテゴリーを「すべて」に戻してみて。</div>';
+    return;
+  }
+
+  let html = '';
+  SET_THEMES.forEach((name, catIdx) => {
+    const inCat = filtered.filter(term => term.c === catIdx);
+    if(inCat.length === 0) return;
+    html += '<div class="gloss-group"><div class="gloss-group-label">' + name + '</div>';
+    inCat.forEach(term => {
+      const row = glossKanaRow(term.k.charAt(0));
+      html += '<div class="gloss-card" data-row="' + (row || '') + '">'
+        + '<div class="gloss-term">' + glossHighlight(term.t, q) + '</div>'
+        + '<div class="gloss-def">' + glossHighlight(term.d, q) + '</div>'
+        + '</div>';
+    });
+    html += '</div>';
+  });
+  listEl.innerHTML = html;
+}
+
+</script>
+</body>
+</html>
